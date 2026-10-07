@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From 2G to 5G: how mobile networks carry voice and data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8edf1; --card:#f8fafb; --ink:#14212e; --muted:#5b6977; --line:#b9c4cd; --lane:#dde4ea;
+  --circuit:#d9622b; --packet:#1f6fd1; --signal:#a07a12; --tunnel:#c23f86; --ims:#7656d6; --record:#2e8a4f;
+  --accent:#5b6977;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --text:"IBM Plex Sans Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1621; --card:#152131; --ink:#e6edf3; --muted:#90a0b0; --line:#34465a; --lane:#122030;
+    --circuit:#ff8550; --packet:#5ea6ff; --signal:#e0b648; --tunnel:#ff6fb4; --ims:#a48bff; --record:#4fd18b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1621; --card:#152131; --ink:#e6edf3; --muted:#90a0b0; --line:#34465a; --lane:#122030;
+  --circuit:#ff8550; --packet:#5ea6ff; --signal:#e0b648; --tunnel:#ff6fb4; --ims:#a48bff; --record:#4fd18b;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--text);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1520px;margin:0 auto;padding:28px 20px 40px}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+h1{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(28px,4.6vw,50px);line-height:1;letter-spacing:-.02em;margin:0}
+.lede{max-width:52ch;color:var(--muted);margin:0}
+nav.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{font:600 15px/1 var(--text);border:1.5px solid var(--line);background:transparent;color:var(--ink);padding:9px 14px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.glossbtn{position:absolute;top:12px;right:12px;z-index:3;display:flex;gap:8px;align-items:center;font:600 14px/1 var(--text);color:var(--ink);background:var(--card);border:1.5px solid var(--accent);border-radius:999px;padding:7px 8px 7px 14px;cursor:pointer;box-shadow:0 2px 10px color-mix(in srgb,var(--ink) 12%,transparent)}
+.glossbtn .badge{background:var(--accent);color:#fff;border-radius:999px;min-width:24px;padding:4px 7px;text-align:center}
+.glossbtn[aria-expanded="true"]{background:var(--accent);color:#fff}
+.glossbtn[aria-expanded="true"] .badge{background:#fff;color:var(--accent)}
+aside.gloss{position:absolute;top:56px;right:12px;z-index:2;width:min(330px,calc(100% - 24px));max-height:calc(100% - 132px);overflow:auto;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:14px;padding:16px 16px 10px;box-shadow:0 12px 32px color-mix(in srgb,var(--ink) 22%,transparent);transform-origin:top right;animation:pop .25s ease both}
+aside.gloss[hidden]{display:none}
+.gloss .close{position:absolute;top:10px;right:10px;border:0;background:none;color:var(--muted);font:600 20px/1 var(--text);cursor:pointer;padding:4px 6px;border-radius:6px}
+.gloss .close:hover{color:var(--ink)}
+.gloss h3{font-family:var(--display);font-stretch:100%;font-weight:700;font-size:18px;margin:0 0 4px;padding-right:28px}
+.gloss .sub{font-size:13px;color:var(--muted);margin:0 0 12px}
+.gloss dl{margin:0}
+.gloss dt{font-family:var(--display);font-stretch:90%;font-weight:700;font-size:15px;color:var(--accent);margin-top:10px}
+.gloss dd{margin:0;font-size:14px;line-height:1.4}
+.gloss dd span{color:var(--muted)}
+.gloss .empty{font-size:14px;color:var(--muted);margin:8px 0 10px}
+.rm-bar text{font:600 13px var(--text);fill:#fff}
+.rm-lbl{font:500 12.5px var(--text);fill:var(--ink)}
+.rm-now{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:4 4}
+.stage{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.stage-scroll{overflow-x:auto}
+svg#stage{display:block;width:100%;min-width:640px;height:auto}
+.progress{position:absolute;left:0;bottom:0;height:3px;background:var(--accent);width:0}
+.progress.run{animation:grow var(--dur,16s) linear forwards}
+@keyframes grow{to{width:100%}}
+.controls{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.controls .group{display:flex;gap:8px}
+.btn{font:600 14px/1 var(--text);border:1.5px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 14px;border-radius:10px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.count{color:var(--muted);font-size:14px}
+aside.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 22px 18px;border-top:6px solid var(--accent)}
+.gen{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:64px;line-height:.9;color:var(--accent);margin:0}
+.era{color:var(--muted);font-size:14px;margin:6px 0 10px}
+.panel h2{font-family:var(--display);font-stretch:100%;font-weight:700;font-size:22px;line-height:1.2;margin:0 0 10px}
+.panel p{margin:0 0 12px}
+.panel ul{margin:0 0 14px;padding-left:18px}
+.panel li{margin-bottom:6px}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+.num{background:var(--bg);border-radius:10px;padding:8px 10px}
+.num b{display:block;font-family:var(--display);font-stretch:90%;font-size:17px;line-height:1.2}
+.num span{font-size:13px;color:var(--muted)}
+.meta{border-top:1px solid var(--line);padding-top:10px;font-size:14px}
+.meta div{margin-bottom:6px}
+.meta strong{font-weight:600}
+.legend{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}
+.flowbtn{display:flex;gap:10px;align-items:flex-start;text-align:left;font:15px/1.35 var(--text);color:var(--ink);background:none;border:0;padding:4px 0;cursor:pointer}
+.flowbtn .sw{flex:none;width:22px;height:10px;border-radius:5px;margin-top:5px}
+.flowbtn[aria-pressed="false"]{opacity:.4;text-decoration:line-through}
+.sw.circuit{background:var(--circuit)} .sw.packet{background:var(--packet)} .sw.signal{background:var(--signal)} .sw.tunnel{background:var(--tunnel)} .sw.record{background:var(--record)}
+.recpkt{fill:var(--record)} .f-recpath{stroke:var(--record);stroke-width:1.2;opacity:.45;fill:none;stroke-dasharray:1 5;stroke-linecap:round}
+.views{position:absolute;top:12px;left:12px;z-index:3;display:flex;background:var(--card);border:1.5px solid var(--accent);border-radius:999px;padding:3px;box-shadow:0 2px 10px color-mix(in srgb,var(--ink) 12%,transparent)}
+.views[hidden]{display:none}
+.views button{font:600 14px/1 var(--text);color:var(--ink);background:none;border:0;border-radius:999px;padding:7px 13px;cursor:pointer}
+.views button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.tip{position:absolute;z-index:4;pointer-events:none;max-width:300px;background:var(--ink);color:var(--card);border-radius:10px;padding:9px 12px;font-size:13.5px;line-height:1.35;box-shadow:0 8px 24px color-mix(in srgb,var(--ink) 30%,transparent);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.tip.show{opacity:1;transform:none}
+.tip div+div{margin-top:6px;padding-top:6px;border-top:1px solid color-mix(in srgb,var(--card) 25%,transparent)}
+.tip b{font-family:var(--display);font-stretch:90%;margin-right:4px}
+.tip span{display:block;opacity:.75}
+svg [data-tip]{cursor:help}
+svg .node[data-tip]:hover rect{stroke-width:3}
+.rtag{display:inline-block;background:var(--accent);color:#fff;border-radius:6px;padding:1px 8px;font-size:13px;font-weight:600;margin-left:6px}
+.spec{background:var(--bg);border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:14px}
+.spec-h{font-weight:600;color:var(--accent);margin-bottom:4px}
+.spec dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0}
+.spec dt{color:var(--muted)} .spec dd{margin:0}
+.specs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.specs span{color:var(--muted)}
+.specs a{color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:2px 7px;background:var(--card)}
+.specs a:hover{border-color:var(--accent)}
+.tblwrap{overflow-x:auto}
+.spec table{border-collapse:collapse;width:100%;font-size:13.5px}
+.spec th,.spec td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.spec thead th{color:var(--muted);font-weight:500}
+.spec tbody th{color:var(--ink);font-family:var(--display);font-stretch:90%}
+.hint{font-size:13px;color:var(--muted);margin-top:-6px;margin-bottom:12px}
+footer{color:var(--muted);font-size:13px;margin-top:18px}
+/* svg */
+.lane{fill:var(--lane)}
+.lanelabel{font:500 13px var(--text);fill:var(--muted)}
+.link{stroke:var(--line);stroke-width:2.2;fill:none}
+.link.air{stroke-dasharray:2 6;stroke-linecap:round;stroke-width:2.6}
+.link.sig{stroke-width:1.4;stroke-dasharray:6 4}
+.link.legacy{stroke-dasharray:3 6;opacity:.7}
+.linklabel{font:500 12px var(--text);fill:var(--muted);paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+.node rect{stroke-width:1.8}
+.node .nm{font:700 15px var(--display);font-stretch:95%;fill:var(--ink);text-anchor:middle}
+.node .sb{font:400 11.5px var(--text);fill:var(--muted);text-anchor:middle}
+.n-ue rect{fill:var(--card);stroke:var(--ink)}
+.n-radio rect{fill:color-mix(in srgb,var(--accent) 22%,var(--card));stroke:var(--accent)}
+.n-core rect{fill:color-mix(in srgb,var(--accent) 9%,var(--card));stroke:var(--accent)}
+.n-ims rect{fill:color-mix(in srgb,var(--ims) 15%,var(--card));stroke:var(--ims)}
+.n-ext rect{fill:var(--card);stroke:var(--muted)}
+.n-legacy rect{fill:var(--card);stroke:var(--muted);stroke-dasharray:4 4}
+.n-legacy .nm{fill:var(--muted)}
+.bus{stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+.buslabel{font:600 12px var(--text);fill:var(--accent)}
+.f-circuit-bg{stroke:var(--circuit);stroke-width:12;opacity:.16;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.f-circuit{stroke:var(--circuit);stroke-width:3.2;fill:none;stroke-dasharray:14 10;stroke-linejoin:round;animation:dash 0.9s linear infinite}
+@keyframes dash{from{stroke-dashoffset:24}to{stroke-dashoffset:0}}
+.f-tunnel{stroke:var(--tunnel);stroke-width:22;opacity:.16;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.f-tunnel-edge{stroke:var(--tunnel);stroke-width:1.4;fill:none;stroke-dasharray:5 5;opacity:.8}
+.pkt{fill:var(--packet)} .sigpkt{fill:var(--signal)}
+.f-sigpath{stroke:var(--signal);stroke-width:1.2;opacity:.45;fill:none;stroke-dasharray:2 4}
+.flow.off{display:none}
+.enter{animation:pop .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade{animation:fadein .6s ease both;animation-delay:var(--d,0s)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.bar{transform-box:fill-box;transform-origin:left center;animation:barin 1s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes barin{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ov-year{font:600 14px var(--text);fill:var(--muted)}
+.ov-name{font:700 15px var(--display);font-stretch:95%;fill:var(--ink)}
+.ov-val{font:500 13px var(--text);fill:var(--ink)}
+.ov-grid{stroke:var(--line);stroke-width:1}
+.ov-gridlbl{font:500 12px var(--text);fill:var(--muted);text-anchor:middle}
+.ov-chip rect{fill:var(--card);stroke-width:1.8}
+.ov-chip text{font:700 14px var(--display);font-stretch:95%;fill:var(--ink);text-anchor:middle}
+.ov-chip .yr{font:400 12px var(--text);fill:var(--muted)}
+body.paused .f-circuit,body.paused .progress{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){
+  .enter,.fade,.bar{animation:none}
+  .f-circuit{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>2G to 5G, step by step</h1>
+    <p class="lede">How mobile networks evolved from dedicated voice circuits to an all-IP, cloud-native core, and how voice found its way back through VoLTE and VoWiFi.</p>
+  </header>
+
+  <nav class="chips" id="chips" aria-label="Generations"></nav>
+
+  <div class="grid">
+    <div class="stage">
+      <div class="views" id="views" role="group" aria-label="Diagram view"><button data-v="net" aria-pressed="true">Network</button><button data-v="roam" aria-pressed="false">Roaming</button><button data-v="bill" aria-pressed="false">Inter-op billing</button></div>
+      <button class="glossbtn" id="glossbtn" aria-expanded="false" aria-controls="gloss">Acronyms <span class="badge" id="glossn">0</span></button>
+      <aside class="gloss" id="gloss" aria-label="Acronyms introduced on this page" hidden></aside>
+      <div class="tip" id="tip" role="tooltip"></div>
+      <div class="stage-scroll"><svg id="stage" viewBox="0 0 1000 460" role="img" aria-label="Network architecture diagram"></svg></div>
+      <div class="progress" id="progress"></div>
+      <div class="controls">
+        <div class="group">
+          <button class="btn" id="prev">Previous</button>
+          <button class="btn primary" id="next">Next</button>
+        </div>
+        <span class="count" id="count"></span>
+        <div class="group">
+          <button class="btn" id="auto" aria-pressed="false">Autoplay</button>
+          <button class="btn" id="pause" aria-pressed="false">Pause motion</button>
+        </div>
+      </div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+  <footer>Simplified reference architectures based on 3GPP. Speeds are theoretical peaks; real-world throughput is lower. Use the arrow keys to move between steps.</footer>
+</div>
+
+<script>
+const STEPS = [
+{ key:'Overview', type:'overview', accent:'#3e5a74', gen:'1→5',
+  title:'Four generations, one big shift', era:'1991 to today',
+  intro:'Every generation added radio capacity, but the deeper change is architectural: voice moves from reserved circuits to IP packets, and the core moves from hardwired boxes to software services.',
+  bullets:['Use the chips above, the buttons or your arrow keys to move between steps.','Each architecture step shows what is moving through the network. Click a flow in the side panel to hide or show it.','Orange is a circuit, blue is IP packets, gold is signalling, pink is a secure tunnel, green is usage records.','Each generation has three views, switched at the top left of the diagram: Network, Roaming (visited network, interconnect, home network) and Inter-op billing (how operators settle roaming and interconnect with each other).'],
+  nums:[['9.6 kb/s','GSM data, 1991'],['20 Gb/s','5G peak target']],
+  svgText:'GSM (CSD) GPRS UMTS R99 EDGE HSDPA LTE HSPA+ DC LTE-A Pro 5G NR Circuit CS Fallback VoLTE VoWiFi VoNR'
+},
+{ key:'2G', gen:'2G', accent:'#c9662f',
+  title:'GSM: digital and circuit-switched', era:'1991',
+  intro:'The first digital standard. A call gets a dedicated circuit: one timeslot on the air and a reserved channel through the switch for the whole call, whether anyone is speaking or not.',
+  bullets:['TDMA: each 200 kHz carrier is split into 8 timeslots, GMSK modulation.','The SIM authenticates against the AuC (A3/A8), and the air link is ciphered with A5/x.','SMS rides on signalling channels, so it is carried by the MSC, not a data network.','Data is an afterthought: 9.6 kb/s circuit-switched data, billed by the minute.'],
+  nums:[['9.6 kb/s','Peak data (CSD)'],['200 kHz','Carrier, 8 slots'],['FR · EFR · AMR','Voice codecs'],['SS7 / MAP','Core signalling']],
+  voice:'Circuit-switched end to end.',
+  records:'The MSC writes MOC/MTC call records; roaming usage goes out as TAP files, with NRTRDE for near-real-time fraud checks.',
+  lanes:[[20,420,'Radio access (BSS)'],[460,260,'Core (NSS)'],[740,240,'Outside world']],
+  nodes:{ms:[90,230,'MS','handset + SIM','ue'],bts:[230,230,'BTS','base station','radio'],bsc:[370,230,'BSC','radio controller','radio'],
+    msc:[590,160,'MSC / VLR','circuit switch','core'],hlr:[590,330,'HLR / AuC','subscriber data','core'],
+    pstn:[860,160,'PSTN','other networks','ext'],smsc:[860,330,'SMSC','SMS centre','ext']},
+  links:[['ms','bts','Um','air'],['bts','bsc','Abis'],['bsc','msc','A'],['msc','hlr','MAP','sig'],['msc','pstn','ISUP / E1'],['msc','smsc','MAP','sig']],
+  flows:[{kind:'circuit',path:['ms','bts','bsc','msc','pstn'],label:'Voice call: a reserved timeslot and trunk channel for the whole call'},
+         {kind:'signal',path:['ms','bts','bsc','msc','hlr'],label:'Location update and authentication'}]
+},
+{ key:'2.5G', gen:'2.5G', accent:'#b7871c',
+  title:'GPRS and EDGE: packets bolted on', era:'2000 to 2003',
+  intro:'A packet-switched core is added next to the circuit core. Radio timeslots are now shared on demand, so data is billed by volume instead of airtime.',
+  bullets:['The PCU in the BSC hands packet traffic to the SGSN over Gb.','The SGSN tracks packet mobility; the GGSN is the gateway to the internet and allocates your IP address per APN.','GTP tunnels (PDP contexts) carry user packets between SGSN and GGSN, an idea that survives all the way into 5G.','EDGE swaps GMSK for 8-PSK on the same carriers, roughly tripling throughput.'],
+  nums:[['171 kb/s','GPRS theoretical peak'],['474 kb/s','EDGE theoretical peak'],['Per MB','Data billing'],['GTP','Tunnelling protocol']],
+  voice:'Still circuit-switched through the MSC.',
+  records:'New packet records appear: S-CDRs from the SGSN and G-CDRs from the GGSN.',
+  lanes:[[20,420,'Radio access (BSS)'],[460,330,'Core: CS and PS domains'],[810,170,'Outside world']],
+  nodes:{ms:[90,230,'MS','handset + SIM','ue'],bts:[230,230,'BTS','base station','radio'],bsc:[370,230,'BSC + PCU','radio controller','radio'],
+    msc:[560,110,'MSC / VLR','circuit switch','core'],hlr:[560,230,'HLR / AuC','subscriber data','core'],sgsn:[560,350,'SGSN','packet mobility','core'],
+    ggsn:[720,350,'GGSN','IP gateway','core'],pstn:[895,110,'PSTN','other networks','ext'],inet:[895,350,'Internet','packet data','ext']},
+  links:[['ms','bts','Um','air'],['bts','bsc','Abis'],['bsc','msc','A'],['bsc','sgsn','Gb'],['msc','hlr','MAP','sig'],['sgsn','hlr','Gr','sig'],
+         ['sgsn','ggsn','Gn (GTP)'],['ggsn','inet','Gi'],['msc','pstn','ISUP']],
+  flows:[{kind:'circuit',path:['ms','bts','bsc','msc','pstn'],label:'Voice call: still a dedicated circuit'},
+         {kind:'packet',path:['ms','bts','bsc','sgsn','ggsn','inet'],label:'Data: IP packets in a GTP tunnel (PDP context)'}]
+},
+{ key:'3G', gen:'3G', accent:'#2c8c8e',
+  title:'UMTS and HSPA: mobile broadband', era:'2001 to 2010',
+  intro:'A new radio, WCDMA, uses 5 MHz channels where all users transmit at once and are separated by codes. The core keeps the split: CS for voice, PS for data.',
+  bullets:['NodeBs are controlled by RNCs, which also run soft handover (Iur between RNCs).','The USIM brings mutual authentication (AKA): the network has to prove itself to the phone too.','Release 4 splits the MSC into an MSC-Server for control and a Media Gateway for the bearer, bringing IP inside the CS core.','HSPA moves scheduling into the NodeB and pushes speeds into tens of Mb/s.'],
+  nums:[['384 kb/s','Release 99 peak'],['42 Mb/s','HSPA+ dual carrier'],['5 MHz','Channel width'],['AKA','Mutual authentication']],
+  voice:'Circuit-switched voice (AMR, later AMR-WB HD voice), plus CS video calls.',
+  records:'Same split as before: MSC records for calls, SGSN/GGSN records for data.',
+  lanes:[[20,420,'Radio access (UTRAN)'],[460,330,'Core: CS and PS domains'],[810,170,'Outside world']],
+  nodes:{ue:[90,230,'UE','handset + USIM','ue'],nb:[230,230,'NodeB','WCDMA cell','radio'],rnc:[370,230,'RNC','radio controller','radio'],
+    msc:[560,110,'MSC-S + MGW','CS core (Rel-4)','core'],hlr:[560,230,'HLR / AuC','subscriber data','core'],sgsn:[560,350,'SGSN','packet mobility','core'],
+    ggsn:[720,350,'GGSN','IP gateway','core'],pstn:[895,110,'PSTN','other networks','ext'],inet:[895,350,'Internet','packet data','ext']},
+  links:[['ue','nb','Uu','air'],['nb','rnc','Iub'],['rnc','msc','Iu-CS'],['rnc','sgsn','Iu-PS'],['msc','hlr','MAP','sig'],['sgsn','hlr','Gr','sig'],
+         ['sgsn','ggsn','Gn (GTP)'],['ggsn','inet','Gi'],['msc','pstn','ISUP / SIP-I']],
+  flows:[{kind:'circuit',path:['ue','nb','rnc','msc','pstn'],label:'Voice call: circuit-switched domain'},
+         {kind:'packet',path:['ue','nb','rnc','sgsn','ggsn','inet'],label:'Data: packet-switched domain, much faster'},
+         {kind:'signal',path:['ue','nb','rnc','sgsn','hlr'],label:'Attach and AKA authentication'}]
+},
+{ key:'4G', gen:'4G', accent:'#2f62c6',
+  title:'LTE: all-IP, no circuit domain', era:'2009',
+  intro:'The RNC disappears and the core is flattened into the EPC. There is no circuit-switched domain any more, so everything, including voice, has to be IP.',
+  bullets:['OFDMA downlink and SC-FDMA uplink, MIMO and carrier aggregation, channels from 1.4 to 20 MHz.','Control and user planes split: the MME does signalling, the S-GW and P-GW carry packets.','Core signalling moves from SS7/MAP to Diameter (S6a, Gx, Gy).','Early LTE had no native voice. Phones used CS Fallback: paged over SGs, then dropped to 2G/3G for every call.'],
+  nums:[['150 Mb/s','LTE Cat 4 peak'],['1 Gb/s+','LTE-Advanced Pro'],['1.4–20 MHz','Channel width'],['Diameter','Core signalling']],
+  voice:'CS Fallback to 2G/3G, or VoLTE (next step).',
+  records:'S-GW and P-GW CDRs, online charging over Gy; roaming data is home-routed over S8 or broken out locally.',
+  lanes:[[20,300,'Radio access (E-UTRAN)'],[340,500,'Evolved Packet Core (EPC)'],[860,120,'Packet data']],
+  nodes:{ue:[90,300,'UE','handset + USIM','ue'],enb:[235,300,'eNodeB','radio + RRC','radio'],msc:[235,95,'MSC','legacy, for CSFB','legacy'],
+    mme:[430,130,'MME','mobility, NAS','core'],sgw:[430,320,'S-GW','user-plane anchor','core'],pgw:[620,320,'P-GW','IP address, APN','core'],
+    hss:[620,130,'HSS','subscriber data','core'],pcrf:[770,225,'PCRF','QoS policy','core'],inet:[920,320,'Internet','SGi','ext']},
+  links:[['ue','enb','LTE-Uu','air'],['enb','mme','S1-MME','sig'],['enb','sgw','S1-U'],['mme','sgw','S11','sig'],['sgw','pgw','S5 / S8'],
+         ['mme','hss','S6a','sig'],['pgw','pcrf','Gx','sig'],['pgw','inet','SGi'],['mme','msc','SGs','legacy']],
+  flows:[{kind:'packet',path:['ue','enb','sgw','pgw','inet'],label:'All traffic is IP, carried on EPS bearers'},
+         {kind:'signal',path:['ue','enb','mme','hss'],label:'Attach and NAS signalling'},
+         {kind:'signal',path:['mme','msc'],label:'CS Fallback: incoming call paged over SGs'}]
+},
+{ key:'VoLTE', gen:'VoLTE', accent:'#6a4bd0',
+  title:'VoLTE: voice as an IMS service', era:'2012 onward',
+  intro:'Voice returns to LTE as a SIP application served by the IP Multimedia Subsystem. The phone registers to IMS over its own APN, and the network guarantees a bearer for the speech.',
+  bullets:['SIP goes to the P-CSCF on a QCI 5 bearer; the S-CSCF controls the session and the TAS provides MMTel services such as forwarding, hold and caller ID.','Speech is RTP on a dedicated guaranteed-bitrate bearer (QCI 1), set up by the PCRF when the P-CSCF asks over Rx.','AMR-WB or EVS give HD voice; ROHC compresses the IP/UDP/RTP headers on the air.','Call setup drops from about 5–7 s with CSFB to 1–2 s. SRVCC hands a call over to 2G/3G when LTE coverage ends.'],
+  nums:[['1–2 s','Call setup'],['QCI 1','Guaranteed voice bearer'],['AMR-WB · EVS','HD voice codecs'],['SIP','Session protocol']],
+  voice:'SIP and RTP over LTE, controlled by IMS.',
+  records:'IMS nodes (P-CSCF, S-CSCF, TAS) report over Rf/Ro alongside the P-GW; roaming uses S8 home-routing (S8HR).',
+  lanes:[[20,250,'E-UTRAN'],[290,350,'EPC'],[660,320,'IMS core']],
+  nodes:{ue:[78,300,'UE','IMS client','ue'],enb:[205,300,'eNodeB','radio','radio'],mme:[370,110,'MME','mobility','core'],sgw:[370,300,'S-GW','user plane','core'],
+    pgw:[560,300,'P-GW','IMS APN','core'],hss:[560,110,'HSS','EPC + IMS profile','core'],pcrf:[465,410,'PCRF','QoS for voice','core'],
+    pcscf:[730,300,'P-CSCF','SIP proxy','ims'],scscf:[900,300,'S-CSCF','session control','ims'],tas:[900,130,'TAS','MMTel services','ims'],
+    mgw:[900,415,'MGCF / MGW','to PSTN and CS','ims']},
+  links:[['ue','enb','LTE-Uu','air'],['enb','mme','S1-MME','sig'],['enb','sgw','S1-U'],['mme','sgw','S11','sig'],['mme','hss','S6a','sig'],
+         ['sgw','pgw','S5'],['pgw','pcrf','Gx','sig'],['pgw','pcscf','SGi'],['pcscf','scscf','Mw','sig'],['scscf','tas','ISC','sig'],
+         ['scscf','hss','Cx','sig'],['pcscf','pcrf','Rx','sig'],['pgw','mgw','RTP'],['scscf','mgw','Mj / Mg','sig']],
+  flows:[{kind:'signal',path:['ue','enb','sgw','pgw','pcscf','scscf','tas'],label:'SIP INVITE through the IMS (QCI 5 bearer)'},
+         {kind:'packet',path:['ue','enb','sgw','pgw','mgw'],label:'Voice: RTP packets on a QCI 1 guaranteed bearer'}]
+},
+{ key:'VoWiFi', gen:'VoWiFi', accent:'#b8407f',
+  title:'VoWiFi: the same IMS over any Wi-Fi', era:'2014 onward',
+  intro:'Any internet connection becomes an access network. The phone builds an IPsec tunnel to the operator\u2019s ePDG and reaches the same P-GW and IMS as VoLTE: same number, same services.',
+  bullets:['Wi-Fi is untrusted non-3GPP access: IKEv2 with EAP-AKA uses the SIM credentials, checked by the 3GPP AAA against the HSS.','SIP and RTP travel inside the ESP tunnel (SWu) to the ePDG, then over GTP on S2b to the P-GW.','Because the P-GW anchors the IP address, calls can hand over between VoWiFi and VoLTE.','Ideal for indoor coverage and travel abroad, though emergency-call location needs extra handling.'],
+  nums:[['IKEv2 + ESP','Secure tunnel'],['EAP-AKA','SIM-based login'],['Any IP network','Access'],['S2b','ePDG to P-GW']],
+  voice:'SIP and RTP over Wi-Fi, controlled by the same IMS.',
+  records:'Same IMS records; the access type shows up in P-Access-Network-Info, which matters for roaming and lawful-intercept rules.',
+  lanes:[[20,340,'Untrusted Wi-Fi and internet'],[380,280,'EPC'],[680,300,'IMS core']],
+  nodes:{ue:[78,260,'UE','IMS client','ue'],ap:[190,260,'Wi-Fi AP','home, café','radio'],isp:[302,260,'Internet','any ISP','ext'],
+    enb:[190,410,'eNodeB','LTE, for handover','legacy'],epdg:[450,260,'ePDG','IPsec gateway','core'],aaa:[450,105,'3GPP AAA','EAP-AKA','core'],
+    pgw:[590,260,'P-GW','IP anchor','core'],hss:[590,105,'HSS','subscriber data','core'],pcscf:[750,260,'P-CSCF','SIP proxy','ims'],
+    scscf:[905,260,'S-CSCF','session control','ims'],tas:[905,105,'TAS','MMTel services','ims']},
+  links:[['ue','ap','Wi-Fi','air'],['ap','isp','broadband'],['isp','epdg','IP'],['epdg','aaa','SWm','sig'],['aaa','hss','SWx','sig'],
+         ['epdg','pgw','S2b'],['pgw','pcscf','SGi'],['pcscf','scscf','Mw','sig'],['scscf','tas','ISC','sig'],
+         ['ue','enb','LTE-Uu','air'],['enb','pgw','S1-U / S5','legacy']],
+  flows:[{kind:'tunnel',path:['ue','ap','isp','epdg'],label:'IPsec ESP tunnel (SWu), set up with IKEv2'},
+         {kind:'packet',path:['ue','ap','isp','epdg','pgw','pcscf'],label:'SIP and RTP inside the tunnel, then to IMS'},
+         {kind:'signal',path:['epdg','aaa','hss'],label:'EAP-AKA authentication with the SIM'}]
+},
+{ key:'5G', gen:'5G', accent:'#1f9468',
+  title:'5G: a cloud-native, service-based core', era:'2019 (NSA), 2020 (SA)',
+  intro:'New Radio brings much wider channels and beamforming, and the core is rebuilt as software network functions that talk over HTTP/2 APIs instead of fixed point-to-point links.',
+  bullets:['NSA (option 3x) adds NR to an LTE anchor and keeps the EPC; SA (option 2) uses the full 5G Core.','The AMF (access, mobility) and SMF (sessions) replace the MME; the UPF is a pure user-plane node that can sit at the edge.','Network slicing runs separately tuned logical networks (broadband, low latency, IoT) on shared infrastructure.','SUCI encrypts the subscriber identity on the air, so the IMSI is no longer sent in clear.','Voice uses VoNR on SA, or EPS fallback to VoLTE. VoWiFi carries on via the ePDG or the N3IWF.'],
+  nums:[['20 Gb/s','Peak target'],['100 / 400 MHz','FR1 / FR2 channels'],['1 ms','URLLC latency target'],['HTTP/2','Service-based interfaces']],
+  voice:'VoNR, or EPS fallback to VoLTE; both rely on IMS.',
+  records:'The SMF reports to the CHF (converged charging, N40), which produces the CDRs; roaming signalling passes through the SEPP (N32).',
+  lanes:[[20,300,'Radio access (NG-RAN)'],[340,500,'5G Core (5GC)'],[860,120,'Data networks']],
+  bus:{y:190,x1:360,x2:820,label:'Service-based interface: HTTP/2 + JSON'},
+  nodes:{ue:[90,340,'UE','handset + USIM','ue'],gnb:[235,340,'gNB','NR, massive MIMO','radio'],enb:[235,170,'eNodeB','LTE anchor (NSA)','legacy'],
+    amf:[405,85,'AMF','access, mobility','core',94],smf:[510,85,'SMF','sessions','core',94],pcf:[615,85,'PCF','policy','core',94],
+    udm:[720,85,'UDM','subscriber data','core',94],nrf:[790,265,'NRF','service discovery','core',94],
+    upf:[560,340,'UPF','user plane','core'],dn:[920,340,'DN / IMS','internet, VoNR','ext']},
+  links:[['ue','gnb','NR-Uu','air'],['ue','enb','','legacy'],['enb','gnb','X2 (EN-DC)','legacy'],['gnb','amf','N2','sig'],['gnb','upf','N3'],
+         ['smf','upf','N4 (PFCP)','sig'],['upf','dn','N6'],
+         ['amf',[405,190],''],['smf',[510,190],''],['pcf',[615,190],''],['udm',[720,190],''],['nrf',[790,190],'']],
+  flows:[{kind:'packet',path:['ue','gnb','upf','dn'],label:'User plane: QoS flows inside a PDU session'},
+         {kind:'signal',path:['ue','gnb','amf',[405,190],[510,190],'smf'],label:'Registration, then PDU session setup via the AMF and SMF'}]
+},
+{ key:'Beyond 5G', type:'roadmap', gen:'6G', accent:'#0d7ea3',
+  title:'Beyond 5G: 5G-Advanced and the road to 6G', era:'2024 to about 2030',
+  intro:'The next steps start as evolution: 5G-Advanced (3GPP Releases 18 to 20) upgrades today\u2019s networks while 6G is studied, then specified. In parallel, operators are switching off the oldest generations.',
+  bullets:['5G-Advanced adds AI/ML in the RAN, network energy saving, RedCap devices for mid-range IoT, NTN satellite access and better positioning.','Release 20 does double duty: a last round of 5G-Advanced plus the 6G study items on requirements, radio and architecture.','In June 2026 3GPP fixed the plan: the 6G specifications will be written in Release 21, from March 2027 to the end of 2028.','First commercial 6G networks are expected around 2030, in line with the ITU IMT-2030 process.','Candidate 6G themes: ISAC (the network also senses its surroundings), AI-native design, the 7\u201324 GHz range (FR3) and battery-less ambient IoT.','Charging keeps converging on the CHF, wholesale roaming moves from TAP to BCE, and network APIs exposed to developers (GSMA Open Gateway) create new business-to-business billing models.','In France, 2G switches off in 2026 (Orange and Free in October, SFR on 15 November, Bouygues Telecom in early December), and 3G follows in 2028\u20132029.'],
+  nums:[['Mar 2027','Rel-21 starts'],['End 2028','First 6G specs'],['~2030','First 6G launches'],['2028\u201329','3G off in France']],
+  voice:'Once 2G and 3G are gone, CSFB and SRVCC have nowhere to fall back to: VoLTE, VoWiFi and VoNR become the only voice paths, inbound roamers included.',
+  records:'Charging keeps converging on the CHF and IMS; roaming partners need VoLTE roaming (S8HR) agreements in place before the circuit-switched fallback disappears.',
+  svgText:'3GPP releases Rel-18 5G-Advanced Rel-19 Rel-20 5G-A + 6G studies Rel-21 first 6G specs Milestones 6G specs freeze IMT-2030 submissions First 6G networks France 2G off 3G off AI-native RAN ISAC sensing NTN satellites 7-24 GHz FR3 Ambient IoT RedCap devices Energy saving Today'
+},
+];
+
+const SPEC={
+'Overview':{map:[['2G','GSM','BSS / GERAN','CS core (NSS)','—'],['2.5G','GPRS, EDGE','GERAN','CS + PS core','—'],['3G','UMTS','UTRAN','CS + PS core','IMT-2000'],['4G','EPS','E-UTRAN','EPC','IMT-Advanced'],['5G','5GS','NG-RAN','5GC','IMT-2020'],['6G','to be named','—','—','IMT-2030']]},
+'2G':{spec:[['Radio access','BSS, later maintained as GERAN'],['Core','CS domain (NSS)'],['First specified','GSM Phase 1 (ETSI, 1990); moved to 3GPP in 2000']],specs:['23.002','43.051']},
+'2.5G':{spec:[['Radio access','GERAN (GSM/EDGE RAN)'],['Core','CS domain + PS domain (GPRS)'],['First specified','GPRS in R97, EDGE (EGPRS) in R99']],specs:['23.060','43.064']},
+'3G':{spec:[['System','UMTS'],['Radio access','UTRAN (radio: UTRA FDD, i.e. WCDMA)'],['Core','CS domain + PS domain'],['First specified','R99; HSDPA Rel-5, HSUPA Rel-6, HSPA+ Rel-7']],specs:['25.401','23.002','33.102']},
+'4G':{spec:[['System','EPS = E-UTRAN + EPC'],['Radio access','E-UTRAN (radio: E-UTRA, i.e. LTE)'],['Core','EPC (the SAE work item)'],['First specified','Rel-8; LTE-Advanced Rel-10, LTE-A Pro Rel-13']],specs:['23.401','36.300','23.272']},
+'VoLTE':{spec:[['Service','IMS MMTel over EPS'],['Industry profile','GSMA IR.92'],['First specified','IMS Rel-5, MMTel Rel-7, SRVCC Rel-8']],specs:['23.228','24.229','23.203','23.216']},
+'VoWiFi':{spec:[['Access type','Untrusted non-3GPP access over S2b'],['Industry profile','GSMA IR.51'],['First specified','Rel-8 (non-3GPP access to EPC)']],specs:['23.402','24.302','33.402']},
+'5G':{spec:[['System','5GS = NG-RAN + 5GC'],['Radio access','NG-RAN (gNB for NR, ng-eNB for LTE)'],['Deployment options','NSA: EN-DC option 3x · SA: option 2'],['First specified','Rel-15; enhanced in Rel-16 and Rel-17']],specs:['23.501','23.502','38.300','33.501','32.290']},
+'Beyond 5G':{spec:[['5G-Advanced','Rel-18, Rel-19, Rel-20'],['6G','Rel-20 studies, Rel-21 specifications'],['ITU family','IMT-2030']]}
+};
+STEPS.forEach(s=>Object.assign(s,SPEC[s.key]||{}));
+
+const RL=[[20,380,'Visited network (VPLMN)'],[420,160,'Interconnect'],[600,380,'Home network (HPLMN)']];
+const ROAM={
+'2G':{title:'GSM roaming: borrowing your identity from home',
+  intro:'The visited network serves you with its own radio and switch, but everything about who you are stays at home. The visited VLR asks your home HLR over international SS7, then the visited MSC handles your calls locally.',
+  bullets:['MAP Update Location and Send Authentication Info cross borders through international SS7 carriers (STP and SCCP routing).','A call to a roamer goes to the home GMSC first. It asks the HLR, which gets an MSRN from the visited VLR, and the call is routed abroad: two international legs, the classic tromboning.','Outgoing calls are routed locally by the visited MSC; CAMEL lets the home network control prepaid and special numbers.','The visited operator converts its CDRs into TAP files for wholesale billing through a clearing house, and sends NRTRDE within 4 hours so the home operator can detect fraud.'],
+  nums:[['MAP','Roaming signalling'],['MSRN','Temporary roaming number'],['TAP','Wholesale billing'],['4 h','NRTRDE deadline']],
+  spec:[['Signalling','MAP over SS7'],['Prepaid control','CAMEL'],['Billing and fraud','TAP3 (GSMA TD.57), NRTRDE (GSMA TD.35)']],specs:['29.002','23.078','23.012'],
+  records:'Visited MSC CDRs become TAP for the home operator; NRTRDE gives a fast subset for fraud control.',
+  lanes:RL,
+  nodes:{ms:[80,240,'MS','roaming SIM','ue'],bss:[200,240,'BTS / BSC','visited radio','radio'],vmsc:[330,240,'VMSC / VLR','serves the roamer','core'],vbill:[330,385,'Visited billing','CDRs to TAP','core'],
+    ss7:[500,110,'SS7 carrier','STP, SCCP','ext',120],voice:[500,240,'Voice carrier','ISUP trunks','ext',120],clear:[500,385,'Clearing house','TAP · NRTRDE','ext',120],
+    hlr:[720,110,'HLR / AuC','home subscriber','core'],gmsc:[720,240,'GMSC','gateway switch','core'],hbill:[720,385,'Home billing','TAP in, retail','core'],caller:[880,240,'Caller','home PSTN','ext']},
+  links:[['ms','bss','Um','air'],['bss','vmsc','A'],['vmsc','ss7','MAP','sig'],['ss7','hlr','MAP','sig'],['vmsc','voice','ISUP'],['voice','gmsc','ISUP'],['gmsc','caller','ISUP'],
+    ['gmsc','hlr','MAP SRI','sig'],['vmsc','vbill','CDRs'],['vbill','clear','TAP, NRTRDE'],['clear','hbill','TAP']],
+  flows:[{kind:'signal',path:['ms','bss','vmsc','ss7','hlr'],label:'Location update: the visited VLR fetches authentication data and your profile from the home HLR'},
+    {kind:'circuit',path:['caller','gmsc','voice','vmsc','bss','ms'],label:'Call to a roamer: via the home GMSC (MSRN from the HLR), then back abroad'},
+    {kind:'record',path:['vmsc','vbill','clear','hbill'],label:'Usage records: visited CDRs become TAP files, plus NRTRDE within 4 hours'}]},
+'2.5G':{title:'GPRS roaming: a tunnel back home',
+  intro:'Data roaming reuses the PDP context: the visited SGSN opens a GTP tunnel across the GRX to a GGSN in your home network, so your IP address and APN come from home.',
+  bullets:['The Gp interface carries GTP between operators over the GRX, a private IP backbone shared by mobile operators.','Home routing keeps the home operator in control of IP addressing, APNs, filtering and charging, at the cost of extra latency.','The SGSN still checks you against the home HLR over Gr (MAP), carried on international SS7.','The visited SGSN produces S-CDRs, converted to TAP data records for wholesale billing.'],
+  nums:[['Gp','Inter-PLMN GTP'],['GRX','Operator IP backbone'],['Home-routed','Default data model'],['S-CDR','Visited data record']],
+  spec:[['Interface','Gp (GTP between PLMNs), Gr (MAP)'],['Backbone','GRX (GSMA IR.34)'],['Guidelines','GSMA IR.33 (GPRS roaming)']],specs:['29.060','23.060'],
+  records:'Data roaming is billed from visited S-CDRs turned into TAP; the home GGSN G-CDR is the cross-check.',
+  lanes:RL,
+  nodes:{ms:[80,240,'MS','roaming SIM','ue'],bss:[200,240,'BSS + PCU','visited radio','radio'],sgsn:[330,240,'SGSN','visited','core'],vbill:[330,385,'Visited billing','S-CDR to TAP','core'],
+    ss7:[500,110,'SS7 carrier','MAP Gr','ext',120],grx:[500,240,'GRX','operator IP backbone','ext',120],clear:[500,385,'Clearing house','TAP · NRTRDE','ext',120],
+    hlr:[720,110,'HLR / AuC','home subscriber','core'],ggsn:[720,240,'GGSN','home APN','core'],hbill:[720,385,'Home billing','TAP in, retail','core'],inet:[880,240,'Internet','via home','ext']},
+  links:[['ms','bss','Um','air'],['bss','sgsn','Gb'],['sgsn','ss7','Gr (MAP)','sig'],['ss7','hlr','Gr','sig'],['sgsn','grx','Gp (GTP)'],['grx','ggsn','Gp'],['ggsn','inet','Gi'],
+    ['sgsn','vbill','S-CDR'],['vbill','clear','TAP'],['clear','hbill','TAP']],
+  flows:[{kind:'signal',path:['ms','bss','sgsn','ss7','hlr'],label:'GPRS attach: the visited SGSN authenticates you against the home HLR'},
+    {kind:'packet',path:['ms','bss','sgsn','grx','ggsn','inet'],label:'Home-routed data: GTP tunnel from the visited SGSN to the home GGSN'},
+    {kind:'record',path:['sgsn','vbill','clear','hbill'],label:'Visited S-CDRs become TAP data records'}]},
+'3G':{title:'UMTS roaming: same model, stronger security',
+  intro:'3G keeps both roaming paths of 2G and GPRS: circuit calls over SS7/MAP and packet data over the GRX. What changes is authentication and the amount of data.',
+  bullets:['The visited network fetches AKA authentication vectors (quintets) from home, so USIM mutual authentication works abroad too.','Voice still trombones through the home GMSC; optimal routing was specified but rarely deployed.','HSPA makes roaming data grow fast; operators start moving from the best-effort GRX to the IPX, which adds QoS and SLAs.','In the EU, roam-like-at-home (June 2017) removed retail surcharges, so wholesale TAP volumes and NRTRDE monitoring matter even more.'],
+  nums:[['Quintets','AKA vectors from home'],['Gp','Data to home GGSN'],['IPX','GRX successor'],['2017','EU roam-like-at-home']],
+  spec:[['Signalling','MAP over SS7, Gr and D interfaces'],['Data','Gp over GRX / IPX (GSMA IR.34)'],['Security','AKA (TS 33.102)']],specs:['29.002','29.060','33.102'],
+  records:'Unchanged: MSC and SGSN records become TAP; NRTRDE runs alongside.',
+  lanes:RL,
+  nodes:{ue:[80,240,'UE','roaming USIM','ue'],ran:[200,240,'NodeB / RNC','visited radio','radio'],sgsn:[330,240,'SGSN','visited','core'],vbill:[330,385,'Visited billing','CDRs to TAP','core'],
+    ss7:[500,110,'SS7 carrier','MAP','ext',120],grx:[500,240,'GRX / IPX','operator backbone','ext',120],clear:[500,385,'Clearing house','TAP · NRTRDE','ext',120],
+    hlr:[720,110,'HLR / AuC','home subscriber','core'],ggsn:[720,240,'GGSN','home APN','core'],hbill:[720,385,'Home billing','TAP in, retail','core'],inet:[880,240,'Internet','via home','ext']},
+  links:[['ue','ran','Uu','air'],['ran','sgsn','Iu-PS'],['sgsn','ss7','Gr (MAP)','sig'],['ss7','hlr','Gr','sig'],['sgsn','grx','Gp (GTP)'],['grx','ggsn','Gp'],['ggsn','inet','Gi'],
+    ['sgsn','vbill','S-CDR'],['vbill','clear','TAP'],['clear','hbill','TAP']],
+  flows:[{kind:'signal',path:['ue','ran','sgsn','ss7','hlr'],label:'Attach: AKA vectors (quintets) fetched from the home HLR'},
+    {kind:'packet',path:['ue','ran','sgsn','grx','ggsn','inet'],label:'Home-routed data over the GRX / IPX'},
+    {kind:'record',path:['sgsn','vbill','clear','hbill'],label:'Visited records become TAP files'}]},
+'4G':{title:'LTE roaming: Diameter and the IPX',
+  intro:'LTE roaming replaces SS7 with Diameter and the GRX with the IPX, but keeps the split: visited radio and S-GW, home P-GW by default.',
+  bullets:['The visited MME reaches the home HSS over S6a through Diameter Edge Agents, which hide topology and filter messages.','Home routing over S8 is the common model; local breakout (LBO) puts the P-GW in the visited network for lower latency.','Without a VoLTE roaming agreement, calls use CSFB to 2G/3G CS roaming, which stops working once those networks switch off.','Diameter is not secure by default either: GSMA FS.19 describes filtering at the interconnect edge.'],
+  nums:[['S6a','Diameter to home HSS'],['S8','Inter-PLMN GTP'],['DEA','Diameter edge agent'],['LBO','Local breakout option']],
+  spec:[['Signalling','Diameter S6a'],['User plane','S8: GTPv2 for control, GTP-U for traffic'],['Guidelines','GSMA IR.88 (LTE roaming), IR.34 (IPX)']],specs:['29.272','29.274','23.401'],
+  records:'Visited S-GW CDRs become TAP data records; NRTRDE continues for fraud monitoring.',
+  lanes:RL,
+  nodes:{ue:[80,250,'UE','roaming USIM','ue'],enb:[200,250,'eNodeB','visited','radio'],mme:[330,110,'MME','visited','core'],sgw:[330,250,'S-GW','visited','core'],vpgw:[330,390,'P-GW','local breakout','legacy'],
+    dea:[500,110,'DEA pair','Diameter edge','ext',120],ipx:[500,250,'IPX','GTP with QoS','ext',120],clear:[500,390,'Clearing house','TAP · NRTRDE','ext',120],
+    hss:[720,110,'HSS','home','core'],hpgw:[720,250,'P-GW','home APN','core'],hbill:[720,390,'Home billing','TAP in, retail','core'],inet:[880,250,'Internet','via home','ext']},
+  links:[['ue','enb','LTE-Uu','air'],['enb','mme','S1-MME','sig'],['enb','sgw','S1-U'],['mme','dea','S6a','sig'],['dea','hss','S6a','sig'],['sgw','ipx','S8'],['ipx','hpgw','S8'],
+    ['hpgw','inet','SGi'],['sgw','vpgw','S5 (LBO)','legacy'],['sgw','clear','CDRs'],['clear','hbill','TAP']],
+  flows:[{kind:'signal',path:['ue','enb','mme','dea','hss'],label:'Attach: S6a Diameter to the home HSS through the edge agents'},
+    {kind:'packet',path:['ue','enb','sgw','ipx','hpgw','inet'],label:'Home-routed data: S8 GTP tunnel across the IPX'},
+    {kind:'record',path:['sgw','clear','hbill'],label:'S-GW CDRs become TAP, with NRTRDE alongside'}]},
+'VoLTE':{title:'VoLTE roaming: S8 home routing',
+  intro:'The industry settled on S8 home routing (S8HR): the IMS APN is treated like data and tunnelled to the home P-GW, so the home IMS handles the call as if you never left.',
+  bullets:['The visited network only sees GTP; a QCI 1 bearer on S8 keeps voice quality across the IPX.','The earlier local breakout model (GSMA IR.65) puts the P-CSCF in the visited network and needs IMS interconnect, which is more complex and less common.','Visited countries still require local lawful interception and emergency calls, so S8HR adds interception at the visited S-GW and local emergency handling.','Once 2G/3G are switched off, a VoLTE roaming agreement is the only way an inbound roamer can make normal calls.'],
+  nums:[['S8HR','Chosen model'],['QCI 1','Voice bearer on S8'],['Home','IMS and TAS'],['Local','LI and emergency']],
+  spec:[['Model','S8 home routing'],['Guidelines','GSMA IR.65 (IMS roaming), IR.88, IR.92'],['Interfaces','S6a and S8 over IPX']],specs:['23.228','23.401','23.167'],
+  records:'The visited network sees bearers, not calls, so wholesale charging relies on QCI 1 bearer usage while the home IMS produces the call records.',
+  lanes:RL,
+  nodes:{ue:[80,250,'UE','IMS client','ue'],enb:[200,250,'eNodeB','visited','radio'],mme:[330,110,'MME','visited','core'],sgw:[330,250,'S-GW','visited, LI point','core'],
+    psap:[200,390,'PSAP','local emergency','legacy'],dea:[500,110,'DEA pair','Diameter edge','ext',120],ipx:[500,250,'IPX','S8 with QCI 1','ext',120],
+    hss:[680,110,'HSS','home','core'],pgw:[680,250,'P-GW','IMS APN','core'],pcscf:[830,250,'P-CSCF','home IMS','ims'],scscf:[830,110,'S-CSCF / TAS','home IMS','ims'],mgw:[830,390,'MGCF / MGW','to called party','ims']},
+  links:[['ue','enb','LTE-Uu','air'],['enb','mme','S1-MME','sig'],['enb','sgw','S1-U'],['mme','dea','S6a','sig'],['dea','hss','S6a','sig'],['sgw','ipx','S8'],['ipx','pgw','S8'],
+    ['pgw','pcscf','SGi'],['pcscf','scscf','Mw','sig'],['scscf','hss','Cx','sig'],['pgw','mgw','RTP'],['ue','psap','emergency','legacy']],
+  flows:[{kind:'signal',path:['ue','enb','sgw','ipx','pgw','pcscf','scscf'],label:'SIP to the home IMS, inside the S8 tunnel'},
+    {kind:'packet',path:['ue','enb','sgw','ipx','pgw','mgw'],label:'Voice RTP, home-routed on a QCI 1 bearer'}]},
+'VoWiFi':{title:'VoWiFi roaming: no visited operator at all',
+  intro:'VoWiFi is roaming-friendly by design. Abroad, the phone reaches the home ePDG over the public internet: no visited mobile network and no IPX are involved.',
+  bullets:['It works anywhere there is internet, including countries without a VoLTE roaming agreement.','No wholesale roaming record is produced because no visited operator takes part; the home IMS records are the only ones.','Some operators restrict VoWiFi abroad for regulatory reasons, and some countries block IPsec or VoIP traffic.','Emergency calls are the hard part: the phone usually falls back to a local cellular network, or the home IMS must route to the right local emergency service.'],
+  nums:[['None','IPX needed'],['None','TAP record'],['Home','ePDG and IMS'],['Local','Emergency fallback']],
+  spec:[['Path','SWu over the public internet to the home ePDG'],['Guidelines','GSMA IR.51']],specs:['23.402','33.402'],
+  records:'Only home records (ePDG, P-GW, IMS); the access network info shows the call was made over Wi-Fi.',
+  lanes:[[20,380,'Visited country: any Wi-Fi'],[420,160,'Public internet'],[600,380,'Home network (HPLMN)']],
+  nodes:{ue:[80,250,'UE','abroad','ue'],ap:[210,250,'Wi-Fi AP','hotel, café','radio'],isp:[330,250,'Local ISP','any broadband','ext'],psap:[210,390,'Local cellular','emergency calls','legacy'],
+    inet:[500,250,'Internet','no IPX','ext',120],epdg:[660,250,'ePDG','home','core'],aaa:[660,110,'3GPP AAA','home','core'],hss:[790,110,'HSS','home','core'],
+    pgw:[790,250,'P-GW','IMS APN','core'],pcscf:[910,250,'P-CSCF','home IMS','ims']},
+  links:[['ue','ap','Wi-Fi','air'],['ap','isp','broadband'],['isp','inet','IP'],['inet','epdg','SWu'],['epdg','aaa','SWm','sig'],['aaa','hss','SWx','sig'],
+    ['epdg','pgw','S2b'],['pgw','pcscf','SGi'],['ue','psap','fallback','legacy']],
+  flows:[{kind:'tunnel',path:['ue','ap','isp','inet','epdg'],label:'IPsec tunnel straight to the home ePDG across the public internet'},
+    {kind:'packet',path:['ue','ap','isp','inet','epdg','pgw','pcscf'],label:'SIP and RTP reach the home IMS as if you were at home'},
+    {kind:'signal',path:['epdg','aaa','hss'],label:'EAP-AKA with your SIM, checked at home'}]},
+'5G':{title:'5G roaming: SEPP to SEPP',
+  intro:'5G keeps the home-routed model but replaces Diameter with HTTP/2 service calls between operators, protected by a SEPP at each operator\u2019s edge.',
+  bullets:['Every control-plane request between operators goes SEPP to SEPP over N32, protected with TLS or with PRINS when IPX providers need to inspect it.','Home routing links a visited V-SMF and V-UPF to the home H-SMF and H-UPF, with N9 carrying user traffic; local breakout is also defined.','NSA roaming is LTE roaming with EN-DC on top, so most early 5G roaming still ran over S6a and S8.','Wholesale billing is moving from TAP to BCE, while the home CHF records usage.'],
+  nums:[['N32','SEPP to SEPP'],['N9','Inter-PLMN user plane'],['PRINS','IPX-aware protection'],['BCE','TAP successor']],
+  spec:[['Signalling','SBI over N32'],['Security','SEPP with TLS or PRINS'],['Guidelines','GSMA NG.113 (5G roaming)']],specs:['29.573','23.501','33.501'],
+  records:'The home CHF records the session; wholesale settlement moves from TAP towards BCE.',
+  lanes:RL,
+  nodes:{ue:[80,320,'UE','SUCI to home','ue'],gnb:[200,320,'gNB','visited','radio'],amf:[230,90,'AMF','visited','core'],vsmf:[330,205,'V-SMF','visited','core'],vupf:[330,320,'V-UPF','visited','core'],
+    sepp:[500,130,'SEPP ⇄ SEPP','N32 via IPX','ext',130],ipx:[500,320,'IPX','N9 user plane','ext',120],
+    ausf:[660,90,'AUSF / UDM','home','core',110],hsmf:[660,205,'H-SMF','home','core'],hupf:[660,320,'H-UPF','home','core'],chf:[810,205,'CHF','home charging','core'],dn:[880,320,'DN','via home','ext']},
+  links:[['ue','gnb','NR-Uu','air'],['gnb','amf','N2','sig'],['gnb','vupf','N3'],['amf','vsmf','N11','sig'],['vsmf','vupf','N4','sig'],['amf','sepp','SBI','sig'],['vsmf','sepp','N16','sig'],
+    ['sepp','ausf','SBI','sig'],['sepp','hsmf','N16','sig'],['vupf','ipx','N9'],['ipx','hupf','N9'],['hupf','dn','N6'],['hsmf','hupf','N4','sig'],['hsmf','chf','N40','sig']],
+  flows:[{kind:'signal',path:['ue','gnb','amf','sepp','ausf'],label:'Registration: the visited AMF authenticates you through the SEPPs'},
+    {kind:'packet',path:['ue','gnb','vupf','ipx','hupf','dn'],label:'Home-routed PDU session: V-UPF to H-UPF over N9'},
+    {kind:'record',path:['hsmf','chf'],label:'The home CHF records usage; wholesale moves from TAP to BCE'}]}
+};
+STEPS.forEach(s=>{if(ROAM[s.key])s.roam=Object.assign({gen:s.gen,accent:s.accent,era:s.era+' · roaming',key:s.key},ROAM[s.key]);});
+
+const BL=[[20,290,'Operator A: visited or originating'],[330,320,'Exchange and settlement'],[670,310,'Operator B: home or terminating']];
+const BILL={
+'2G':{title:'GSM: where inter-operator billing began',
+  intro:'GSM creates two money flows between operators: roaming, settled with TAP files, and interconnect, settled by both sides measuring the same calls on their own switches.',
+  bullets:['The visited operator prices each roamer record at the agreed Inter-Operator Tariff (IOT) and sends TAP files to the home operator, usually through a data clearing house.','The home operator validates every file; rejected files or records come back as RAP, and they are not paid until corrected.','A financial clearing house nets what each pair of operators owes; discount agreements are settled separately on top of the TAP totals.','Interconnect works differently: each operator rates the same calls from its own trunk records, and the monthly invoice is reconciled against the receiver\u2019s count, with differences above an agreed tolerance disputed.'],
+  nums:[['TAP / RAP','Roaming records and returns'],['IOT','Wholesale roaming price'],['DCH / FCH','Data and financial clearing'],['Tolerance','Dispute threshold']],
+  spec:[['Roaming files','TAP3 (GSMA TD.57), RAP (GSMA TD.32)'],['Fraud','NRTRDE (GSMA TD.35)'],['Interconnect','Bilateral agreements, trunk CDRs (TS 32.250)']],specs:['32.250'],
+  lanes:BL,
+  nodes:{vmsc:[95,110,'VMSC','roamer CDRs','core'],tapA:[225,110,'TAP out','priced at IOT','core'],gmscA:[95,300,'GMSC A','trunk CDRs','core'],icbA:[225,400,'Interconnect billing','rate per agreement','core'],
+    dch:[490,110,'Data clearing','validate, convert','ext',130],fch:[490,215,'Financial clearing','net and pay','ext',130],inv:[490,400,'Invoice','monthly, reconcile','ext',130],
+    tapB:[745,110,'TAP in','validate, RAP','core'],retail:[895,110,'Retail rating','bill subscriber','core'],icbB:[745,400,'Interconnect billing','own measurement','core'],gmscB:[895,300,'GMSC B','trunk CDRs','core']},
+  links:[['vmsc','tapA',''],['tapA','dch','TAP'],['dch','tapB','TAP ⇄ RAP'],['tapB','retail',''],['tapA','fch',''],['fch','tapB',''],['gmscA','icbA',''],['gmscB','icbB',''],['gmscA','gmscB','ISUP trunk'],['icbA','inv',''],['inv','icbB','']],
+  flows:[{kind:'record',path:['vmsc','tapA','dch','tapB','retail'],label:'Roaming: visited CDRs priced at the IOT and sent as TAP via the clearing house'},
+    {kind:'signal',path:['tapB','dch','tapA'],label:'RAP: rejected files or records returned to the sender'},
+    {kind:'circuit',path:['gmscA','gmscB'],label:'Interconnect call over ISUP trunks, recorded by both switches'},
+    {kind:'record',path:['icbA','inv','icbB'],label:'Both sides rate the same calls and reconcile the monthly invoice'}]},
+'2.5G':{title:'GPRS roaming: two sides count the same bytes',
+  intro:'With home-routed data, both operators record the same session: the visited SGSN for TAP, the home GGSN for its own records. Data roaming makes reconciliation routine.',
+  bullets:['The visited operator charges per volume at the IOT; the home operator compares TAP volumes with its own G-CDRs by partner, APN and period.','Gaps come from partial records, late files, rounding and lost records, and are investigated by revenue assurance before a dispute is raised.','The GRX provider invoices transport separately, so data roaming carries a wholesale usage charge and a carrier charge.','Bill shock pushed operators to watch usage fast; NRTRDE gives the home operator a view within hours instead of days.'],
+  nums:[['TAP vs G-CDR','Volume reconciliation'],['Per MB','Wholesale data price'],['GRX','Separate transport invoice'],['4 h','NRTRDE deadline']],
+  spec:[['Records','S-CDR in TAP, G-CDR at home (TS 32.298)'],['Exchange','TAP3 and RAP via clearing house'],['Transport','GRX (GSMA IR.34)']],specs:['32.298','32.251'],
+  lanes:BL,
+  nodes:{sgsn:[95,140,'SGSN','S-CDR','core'],tapA:[225,140,'TAP out','per MB at IOT','core'],
+    dch:[490,140,'Data clearing','validate, convert','ext',130],grx:[490,320,'GRX provider','transport invoice','ext',130],
+    tapB:[745,140,'TAP in','validate, RAP','core'],retail:[895,140,'Retail rating','bill subscriber','core'],ra:[745,230,'Revenue assurance','TAP vs G-CDR','core'],ggsn:[895,320,'GGSN','G-CDR','core']},
+  links:[['sgsn','tapA',''],['tapA','dch','TAP'],['dch','tapB','TAP'],['tapB','retail',''],['tapB','ra','TAP volumes'],['ggsn','ra','G-CDRs'],['sgsn','grx','Gp'],['grx','ggsn','Gp']],
+  flows:[{kind:'record',path:['sgsn','tapA','dch','tapB','retail'],label:'Visited S-CDRs priced per MB and sent as TAP'},
+    {kind:'record',path:['ggsn','ra'],label:'The home GGSN records the same sessions'},
+    {kind:'record',path:['tapB','ra'],label:'Reconcile: TAP volume against home G-CDR volume per partner'},
+    {kind:'packet',path:['sgsn','grx','ggsn'],label:'GTP traffic over the GRX, billed separately as transport'}]},
+'3G':{title:'UMTS era: the settlement cycle',
+  intro:'As roaming volumes grow, the money flow becomes a cycle: daily TAP files, monthly invoices built from accepted TAP, and periodic discount settlements on top.',
+  bullets:['Monthly wholesale invoices are built from accepted TAP only; returned or disputed records stay out until resolved.','Most operator pairs sign discount deals (volume commitments, flat rates, balanced traffic), so the real price is set after the fact, not by the TAP rate.','Each side calculates the discount on its own copy of the TAP data, and both must agree before settling, which is why matching datasets matter.','EU regulation caps wholesale roaming rates inside the EU; roam-like-at-home (June 2017) moved the pressure from retail margins to wholesale ones.'],
+  nums:[['Daily','TAP exchange'],['Monthly','Invoice and netting'],['Periodic','Discount settlement'],['EU caps','Regulated wholesale rates']],
+  spec:[['Exchange','TAP3 and RAP'],['Clearing','Data and financial clearing houses'],['Regulation','EU Roaming Regulation']],
+  lanes:BL,
+  nodes:{tapA:[160,120,'TAP out','daily files','core'],invA:[160,260,'Wholesale invoice','from accepted TAP','core'],discA:[160,390,'Discount calc','own view','core'],
+    dch:[490,120,'Data clearing','TAP, RAP','ext',130],fch:[490,260,'Financial clearing','netting, payment','ext',130],disc:[490,390,'Discount settlement','agree, then pay','ext',130],
+    tapB:[820,120,'TAP in','validate','core'],invB:[820,260,'Invoice check','against own TAP','core'],discB:[820,390,'Discount calc','own view','core']},
+  links:[['tapA','dch','TAP'],['dch','tapB','TAP'],['invA','fch','invoice'],['fch','invB',''],['discA','disc',''],['disc','discB',''],['tapA','invA',''],['tapB','invB',''],['invA','discA',''],['invB','discB','']],
+  flows:[{kind:'record',path:['tapA','dch','tapB'],label:'Daily: TAP files through the data clearing house'},
+    {kind:'record',path:['invA','fch','invB'],label:'Monthly: invoices netted and paid via the financial clearing house'},
+    {kind:'signal',path:['discA','disc','discB'],label:'Periodic: both sides compute the discount and agree before settling'}]},
+'4G':{title:'LTE roaming: matching both ends of S8',
+  intro:'Settlement stays TAP-based, but volumes explode. Matching visited S-GW records against home P-GW records becomes a core revenue assurance task.',
+  bullets:['With S8 home routing, the visited S-GW and the home P-GW record the same bearers; differences by partner and day point to lost, late or duplicated records.','With local breakout the home network sees no user-plane records, so TAP is the only usage source and checks rely on NRTRDE and partner reports.','IPX providers bill transport and may also sell hubbing and clearing, so one roaming relationship can involve several invoices.','Volume commitments and steering of roaming in discount deals make accurate per-partner counts directly financial.'],
+  nums:[['S-GW vs P-GW','Record matching'],['4 h','NRTRDE deadline'],['IPX','Transport invoice'],['LBO','TAP is the only source']],
+  spec:[['Records','SGW-CDR, PGW-CDR (TS 32.298)'],['Exchange','TAP3, RAP, NRTRDE'],['Guidelines','GSMA IR.88, IR.34']],specs:['32.298','32.251'],
+  lanes:BL,
+  nodes:{sgw:[95,140,'S-GW','SGW-CDR','core'],tapA:[225,140,'TAP out','priced at IOT','core'],nrtA:[225,300,'NRTRDE out','within 4 h','core'],
+    dch:[490,140,'Data clearing','TAP, NRTRDE','ext',130],ipx:[490,400,'IPX provider','transport, hub','ext',130],
+    tapB:[745,140,'TAP in','validate, RAP','core'],fraud:[895,215,'Fraud control','NRTRDE in','core'],ra:[745,300,'Revenue assurance','S-GW vs P-GW','core'],pgw:[895,400,'P-GW','PGW-CDR','core']},
+  links:[['sgw','tapA',''],['sgw','nrtA',''],['tapA','dch','TAP'],['nrtA','dch','NRTRDE'],['dch','tapB','TAP'],['dch','fraud',''],['tapB','ra',''],['pgw','ra','PGW-CDRs'],['sgw','ipx','S8'],['ipx','pgw','S8']],
+  flows:[{kind:'record',path:['sgw','tapA','dch','tapB','ra'],label:'Visited S-GW records priced and sent as TAP'},
+    {kind:'record',path:['pgw','ra'],label:'The home P-GW records the same bearers for matching'},
+    {kind:'signal',path:['sgw','nrtA','dch','fraud'],label:'NRTRDE within 4 hours for fraud screening'},
+    {kind:'packet',path:['sgw','ipx','pgw'],label:'S8 traffic carried, and billed, by the IPX'}]},
+'VoLTE':{title:'VoLTE: IP interconnect and voice reconciliation',
+  intro:'Voice between operators moves from TDM trunks to SIP interconnect, often through IPX voice hubs. The settlement model stays: both sides measure, rate and reconcile minutes.',
+  bullets:['IBCF or MGCF records give each side its own minute count per route and destination, rated against termination and transit rates.','In the EU, mobile termination rates are capped EU-wide (Eurorate, 0.2 euro cents per minute since 2024), which shrinks margins but not the reconciliation work.','With S8HR the visited network cannot see the call, only the QCI 1 bearer, so voice roaming charges come from bearer records and the home operator checks them against its IMS records.','Interconnect fraud such as bypass, refiling and IRSF shows up as reconciliation gaps, so traffic and invoice checks double as fraud controls.'],
+  nums:[['Minutes','Settlement unit'],['0.2 c€/min','EU termination cap'],['QCI 1','S8HR roaming basis'],['IRSF','Major fraud risk']],
+  spec:[['Records','IMS CDRs incl. MGCF and IBCF (TS 32.260)'],['Interconnect','SIP over IPX (GSMA IR.65)'],['Regulation','EU Delegated Regulation on termination rates']],specs:['32.260'],
+  lanes:BL,
+  nodes:{sgwA:[95,330,'S-GW (visited)','QCI 1 bearer','core'],ibcfA:[225,100,'IBCF / MGCF','SIP trunk records','ims'],icbA:[225,220,'Interconnect billing','rate minutes','core'],tapA:[225,330,'TAP out','voice from bearer','core'],
+    ipx:[490,100,'IPX voice hub','transit','ext',130],inv:[490,220,'Invoice','reconcile, dispute','ext',130],dch:[490,330,'Data clearing','TAP','ext',130],
+    ibcfB:[745,100,'IBCF / MGCF','SIP trunk records','ims'],icbB:[745,220,'Interconnect billing','rate minutes','core'],tapB:[745,330,'TAP in','validate','core'],ims:[895,330,'Home IMS','call records','ims']},
+  links:[['ibcfA','ipx','SIP / RTP'],['ipx','ibcfB','SIP / RTP'],['ibcfA','icbA',''],['ibcfB','icbB',''],['icbA','inv',''],['inv','icbB',''],['sgwA','tapA',''],['tapA','dch','TAP'],['dch','tapB','TAP'],['tapB','ims','compare']],
+  flows:[{kind:'packet',path:['ibcfA','ipx','ibcfB'],label:'SIP and RTP over IP interconnect'},
+    {kind:'record',path:['ibcfA','icbA','inv','icbB'],label:'Both sides rate the minutes and reconcile the invoice'},
+    {kind:'record',path:['sgwA','tapA','dch','tapB','ims'],label:'S8HR: visited charges from QCI 1 bearer usage; home checks against IMS records'}]},
+'VoWiFi':{title:'VoWiFi: wholesale roaming disappears',
+  intro:'A Wi-Fi call made abroad never touches the visited mobile network, so there is no TAP, no IOT and no roaming settlement. What remains is ordinary interconnect from the home network.',
+  bullets:['For the home operator the call leaves its IMS like a domestic call and is settled with the called operator at normal interconnect rates.','Revenue assurance has to know which calls went over Wi-Fi abroad (from the access network info) to explain missing TAP and lower roaming revenue.','A call to a local number in the visited country is routed from home, so it is an international call for interconnect billing.'],
+  nums:[['None','Roaming settlement'],['Home','Interconnect leg'],['Access info','Explains missing TAP']],
+  spec:[['Records','IMS CDRs with P-Access-Network-Info'],['Settlement','Interconnect only']],specs:['32.260','24.229'],
+  lanes:[[20,290,'Home operator (subscriber abroad)'],[330,320,'Exchange and settlement'],[670,310,'Called party\u2019s operator']],
+  nodes:{ims:[95,160,'Home IMS','call records','ims'],ibcfA:[225,160,'IBCF / MGCF','outgoing leg','ims'],icbA:[225,300,'Interconnect billing','rate minutes','core'],
+    ipx:[490,160,'IPX / transit','international','ext',130],inv:[490,300,'Invoice','reconcile','ext',130],vis:[490,410,'Visited operator','not involved','legacy',130],
+    ibcfB:[745,160,'IBCF / MGCF','incoming leg','ims'],icbB:[745,300,'Interconnect billing','own measurement','core']},
+  links:[['ims','ibcfA',''],['ibcfA','ipx','SIP'],['ipx','ibcfB','SIP'],['ibcfA','icbA',''],['ibcfB','icbB',''],['icbA','inv',''],['inv','icbB','']],
+  flows:[{kind:'packet',path:['ims','ibcfA','ipx','ibcfB'],label:'The call leaves through the home IMS, like a domestic call'},
+    {kind:'record',path:['icbA','inv','icbB'],label:'Normal interconnect settlement with the called operator'}]},
+'5G':{title:'5G: from TAP to BCE',
+  intro:'5G roaming keeps the wholesale model but modernises the plumbing: the visited network records roamer usage in its own converged charging, and operators move from TAP files toward BCE.',
+  bullets:['In home-routed roaming the V-SMF can report to a visited CHF, so wholesale records come from the same charging system as retail (TS 32.255).','BCE aims to simplify settlement by reflecting that most roaming is priced by agreement, not per record.','Matching visited and home CHF records per DNN, slice and QoS flow is the 5G form of the old TAP versus G-CDR check.','Slicing and network APIs create new wholesale products, each needing its own rating, invoicing and reconciliation rules.'],
+  nums:[['BCE','TAP successor'],['V-CHF','Wholesale records'],['N16','V-SMF to H-SMF'],['Per slice','New settlement unit']],
+  spec:[['Charging','5G data connectivity incl. roaming (TS 32.255)'],['Exchange','GSMA BCE'],['Guidelines','GSMA NG.113']],specs:['32.255','32.290'],
+  lanes:BL,
+  nodes:{vsmf:[95,120,'V-SMF','usage reports','core'],vchf:[95,260,'V-CHF','wholesale CDRs','core'],bceA:[225,260,'BCE out','usage, charges','core'],discA:[225,390,'Discount calc','own view','core'],
+    hub:[490,260,'Clearing house','BCE exchange','ext',130],settle:[490,390,'Settlement','net, invoice','ext',130],
+    hsmf:[745,120,'H-SMF','usage reports','core'],hchf:[895,120,'H-CHF','home records','core'],bceB:[745,260,'BCE in','validate','core'],ra:[895,260,'Revenue assurance','V vs H records','core'],discB:[745,390,'Discount calc','own view','core']},
+  links:[['vsmf','vchf','N40','sig'],['vsmf','hsmf','N16 via SEPP','sig'],['hsmf','hchf','N40','sig'],['vchf','bceA',''],['bceA','hub','BCE'],['hub','bceB','BCE'],['bceB','ra',''],['hchf','ra',''],
+    ['bceA','discA',''],['bceB','discB',''],['discA','settle',''],['settle','discB','']],
+  flows:[{kind:'record',path:['vsmf','vchf','bceA','hub','bceB','ra'],label:'Visited usage recorded at its own CHF and exchanged as BCE'},
+    {kind:'record',path:['hsmf','hchf','ra'],label:'The home CHF records the same PDU sessions for matching'},
+    {kind:'signal',path:['discA','settle','discB'],label:'Agreement-based settlement and discounts'}]}
+};
+STEPS.forEach(s=>{if(BILL[s.key])s.bill=Object.assign({gen:s.gen,accent:s.accent,era:s.era+' · inter-operator billing',key:s.key},BILL[s.key]);});
+
+const GLOSS=[
+['3GPP','3rd Generation Partnership Project','the body that writes the GSM-to-6G specifications'],
+['GSM','Global System for Mobile Communications','the 2G standard'],
+['CSD','Circuit Switched Data','data over a voice-style circuit, billed per minute'],
+['GPRS','General Packet Radio Service','first packet data service on GSM'],
+['UMTS','Universal Mobile Telecommunications System','the 3G standard'],
+['R99','Release 99','first 3GPP release of UMTS'],
+['EDGE','Enhanced Data rates for GSM Evolution','faster modulation on GSM carriers'],
+['HSDPA','High Speed Downlink Packet Access','first HSPA step: faster 3G downlink'],
+['HSPA','High Speed Packet Access','3G speed upgrades; HSPA+ is the evolved version'],
+['DC','Dual Carrier','two 5 MHz carriers combined for one user'],
+['LTE','Long Term Evolution','the 4G radio standard'],
+['LTE-A','LTE-Advanced','LTE with carrier aggregation and more MIMO; Pro adds further upgrades'],
+['NR','New Radio','the 5G radio interface'],
+['CS','Circuit Switched','a channel reserved for the whole call'],
+['PS','Packet Switched','resources used only when packets flow'],
+['IP','Internet Protocol','the packet protocol everything converges on'],
+['VoLTE','Voice over LTE','IMS voice over 4G'],
+['VoWiFi','Voice over Wi-Fi','IMS voice over any Wi-Fi, via the ePDG'],
+['VoNR','Voice over New Radio','IMS voice directly over 5G standalone'],
+['MS','Mobile Station','the 2G handset'],
+['SIM','Subscriber Identity Module','smart card holding identity and secret keys'],
+['BTS','Base Transceiver Station','a 2G radio site'],
+['BSC','Base Station Controller','manages a group of BTSs'],
+['BSS','Base Station Subsystem','BTSs plus BSCs: the 2G radio network'],
+['NSS','Network Switching Subsystem','the 2G core: MSC, VLR, HLR, AuC'],
+['MSC','Mobile Switching Centre','switches circuit calls and carries SMS'],
+['VLR','Visitor Location Register','temporary subscriber data in an MSC area'],
+['HLR','Home Location Register','master subscriber database'],
+['AuC','Authentication Centre','holds SIM keys and generates authentication vectors'],
+['PSTN','Public Switched Telephone Network','the fixed telephone network'],
+['SMSC','Short Message Service Centre','stores and forwards SMS'],
+['SMS','Short Message Service','text messages'],
+['TDMA','Time Division Multiple Access','users share a carrier in timeslots'],
+['GMSK','Gaussian Minimum Shift Keying','GSM modulation'],
+['SS7','Signalling System No. 7','classic telephony signalling network'],
+['MAP','Mobile Application Part','SS7 protocol between mobile core nodes'],
+['ISUP','ISDN User Part','SS7 call control between switches'],
+['FR','Full Rate','original 13 kb/s GSM speech codec'],
+['EFR','Enhanced Full Rate','better-quality GSM speech codec'],
+['AMR','Adaptive Multi-Rate','codec that adapts its bitrate to radio conditions'],
+['MOC','Mobile Originated Call','record of a call made by the subscriber'],
+['MTC','Mobile Terminated Call','record of a call received by the subscriber'],
+['CDR','Call / Charging Detail Record','usage record written by a network node',1],
+['TAP','Transferred Account Procedure','GSMA format for exchanging roaming usage'],
+['NRTRDE','Near Real-Time Roaming Data Exchange','fast roaming records for fraud control'],
+['PCU','Packet Control Unit','adds packet handling to the BSC'],
+['SGSN','Serving GPRS Support Node','packet mobility and session node'],
+['GGSN','Gateway GPRS Support Node','gateway to external IP networks'],
+['APN','Access Point Name','names the packet network to connect to'],
+['PDP','Packet Data Protocol','a PDP context is a data session with its own IP address'],
+['GTP','GPRS Tunnelling Protocol','tunnels user packets between core nodes'],
+['PSK','Phase Shift Keying','8-PSK carries 3 bits per symbol in EDGE',1],
+['MB','Megabyte','unit of data volume'],
+['UE','User Equipment','the device in 3G, 4G and 5G'],
+['USIM','Universal SIM','SIM application for 3G and later'],
+['WCDMA','Wideband Code Division Multiple Access','3G radio; users separated by codes'],
+['UTRAN','UMTS Terrestrial Radio Access Network','the 3G radio network'],
+['RNC','Radio Network Controller','controls NodeBs and handover'],
+['AKA','Authentication and Key Agreement','mutual SIM-based authentication'],
+['MSC-S','MSC Server','control half of a split MSC'],
+['MGW','Media Gateway','handles and converts the voice bearer'],
+['AMR-WB','AMR Wideband','the HD voice codec'],
+['SIP','Session Initiation Protocol','sets up and controls calls over IP'],
+['E-UTRAN','Evolved UTRAN','the LTE radio network'],
+['eNodeB','evolved NodeB','the LTE base station'],
+['EPC','Evolved Packet Core','the 4G core'],
+['MME','Mobility Management Entity','LTE control-plane node'],
+['S-GW','Serving Gateway','user-plane anchor during mobility'],
+['P-GW','PDN Gateway','allocates the IP address and connects to APNs'],
+['PDN','Packet Data Network','an external IP network'],
+['HSS','Home Subscriber Server','subscriber database for EPC and IMS'],
+['PCRF','Policy and Charging Rules Function','decides QoS and charging rules'],
+['OFDMA','Orthogonal Frequency Division Multiple Access','LTE and NR downlink access scheme'],
+['SC-FDMA','Single Carrier FDMA','LTE uplink with lower peak power'],
+['MIMO','Multiple Input Multiple Output','several antennas sending parallel streams'],
+['RRC','Radio Resource Control','radio signalling between device and base station'],
+['NAS','Non-Access Stratum','signalling between device and core'],
+['CSFB','Circuit Switched Fallback','an LTE phone drops to 2G/3G to make a call'],
+['EPS','Evolved Packet System','LTE radio plus EPC'],
+['QoS','Quality of Service','priority, bitrate and delay guarantees'],
+['IMS','IP Multimedia Subsystem','SIP-based core for voice and messaging'],
+['P-CSCF','Proxy Call Session Control Function','first SIP hop for the device'],
+['S-CSCF','Serving Call Session Control Function','SIP registrar and session controller'],
+['TAS','Telephony Application Server','supplementary voice services'],
+['MMTel','Multimedia Telephony','the IMS voice and video service'],
+['RTP','Real-time Transport Protocol','carries the voice packets'],
+['QCI','QoS Class Identifier','LTE bearer class: 1 is voice, 5 is IMS signalling'],
+['MGCF','Media Gateway Control Function','interworks IMS with PSTN and CS networks'],
+['EVS','Enhanced Voice Services','the newest 3GPP voice codec'],
+['ROHC','Robust Header Compression','shrinks IP/UDP/RTP headers on the air'],
+['UDP','User Datagram Protocol','connectionless transport under RTP'],
+['SRVCC','Single Radio Voice Call Continuity','hands a VoLTE call to 2G/3G'],
+['S8HR','S8 Home Routing','VoLTE roaming via the home P-GW and IMS'],
+['AP','Access Point','the Wi-Fi radio'],
+['ISP','Internet Service Provider','any broadband provider'],
+['ePDG','evolved Packet Data Gateway','terminates IPsec from untrusted Wi-Fi'],
+['AAA','Authentication, Authorization and Accounting','checks non-3GPP access against the HSS'],
+['IKEv2','Internet Key Exchange version 2','negotiates the IPsec tunnel'],
+['EAP-AKA','Extensible Authentication Protocol with AKA','SIM-based login over EAP'],
+['IPsec','IP Security','encrypted and authenticated IP tunnels'],
+['ESP','Encapsulating Security Payload','the encrypted IPsec packet format'],
+['NSA','Non-Standalone','5G radio anchored on LTE and the EPC'],
+['SA','Standalone','5G radio with the 5G Core'],
+['EN-DC','E-UTRA NR Dual Connectivity','device connected to LTE and NR at once'],
+['NG-RAN','Next Generation Radio Access Network','the 5G radio network'],
+['gNB','next generation NodeB','the 5G base station'],
+['5GC','5G Core','the service-based 5G core'],
+['AMF','Access and Mobility Management Function','registration and mobility'],
+['SMF','Session Management Function','sets up PDU sessions, controls the UPF'],
+['UPF','User Plane Function','forwards user packets'],
+['PCF','Policy Control Function','5G successor of the PCRF'],
+['UDM','Unified Data Management','5G successor of the HSS'],
+['NRF','NF Repository Function','registry where network functions find each other'],
+['HTTP','Hypertext Transfer Protocol','HTTP/2 carries the 5G core APIs'],
+['JSON','JavaScript Object Notation','data format of the 5G core APIs'],
+['PFCP','Packet Forwarding Control Protocol','how the SMF programs the UPF'],
+['DN','Data Network','5G term for an external network'],
+['PDU','Protocol Data Unit','a PDU session is a 5G data session'],
+['SUCI','Subscription Concealed Identifier','encrypted form of the subscriber identity'],
+['IMSI','International Mobile Subscriber Identity','the permanent subscriber number on the SIM'],
+['N3IWF','Non-3GPP Interworking Function','5G counterpart of the ePDG'],
+['URLLC','Ultra-Reliable Low-Latency Communication','5G service class for critical traffic'],
+['IoT','Internet of Things','connected sensors and machines'],
+['FR1','Frequency Range 1','5G bands below about 7 GHz'],
+['FR2','Frequency Range 2','5G millimetre-wave bands, 24 GHz and up'],
+['CHF','Charging Function','5G converged charging; produces the CDRs'],
+['SEPP','Security Edge Protection Proxy','border gateway for 5G signalling between operators'],
+['PLMN','Public Land Mobile Network','one operator\u2019s mobile network'],
+['VPLMN','Visited PLMN','the network you roam on'],
+['HPLMN','Home PLMN','the network that issued your SIM'],
+['STP','Signal Transfer Point','routes SS7 messages'],
+['SCCP','Signalling Connection Control Part','SS7 layer that routes MAP by global title'],
+['GMSC','Gateway MSC','entry point for calls into a mobile network'],
+['SRI','Send Routing Information','MAP query to find where a subscriber is'],
+['MSRN','Mobile Station Roaming Number','temporary number used to route a call to a roamer'],
+['CAMEL','Customised Applications for Mobile network Enhanced Logic','home control of calls abroad, e.g. prepaid'],
+['TAP3','TAP version 3','current TAP file format'],
+['GRX','GPRS Roaming Exchange','private IP backbone between mobile operators'],
+['IPX','IP Packet Exchange','GRX successor with QoS, security and SLAs'],
+['SLA','Service Level Agreement','contracted quality between providers'],
+['EU','European Union',''],
+['DEA','Diameter Edge Agent','Diameter proxy at the operator border'],
+['LBO','Local Breakout','traffic leaves via the visited network'],
+['GTPv2','GTP version 2','EPC control-plane protocol (GTPv2-C)'],
+['VoIP','Voice over IP',''],
+['PSAP','Public Safety Answering Point','emergency call centre'],
+['TLS','Transport Layer Security','encryption for N32 between SEPPs'],
+['PRINS','Protocol for N32 Interconnect Security','application-layer protection that lets IPX providers modify selected fields'],
+['V-SMF','Visited SMF','session control in the visited network'],
+['V-UPF','Visited UPF','user plane in the visited network'],
+['H-SMF','Home SMF','session control in the home network'],
+['H-UPF','Home UPF','user plane in the home network'],
+['AUSF','Authentication Server Function','5G authentication in the home network'],
+['SBI','Service-Based Interface','HTTP/2 APIs between 5G core functions'],
+['BCE','Billing and Charging Evolution','GSMA successor to TAP for wholesale billing'],
+['LI','Lawful Interception','legally required call and data interception'],
+['SCP','Service Control Point','IN node holding prepaid logic and balances'],
+['CAP','CAMEL Application Part','protocol between the MSC and the SCP'],
+['ASN.1','Abstract Syntax Notation One','schema language used for CDRs'],
+['BER','Basic Encoding Rules','binary ASN.1 encoding of CDR files'],
+['FMS','Fraud Management System','detects abnormal usage'],
+['CGF','Charging Gateway Function','collects, buffers and forwards CDRs'],
+['CDF','Charging Data Function','builds CDRs from charging events'],
+['OCS','Online Charging System','real-time balance and quota control'],
+['OFCS','Offline Charging System','CDF plus CGF'],
+['DCCA','Diameter Credit-Control Application','protocol behind Gy and Ro'],
+['RFC','Request for Comments','an IETF standard'],
+['PCEF','Policy and Charging Enforcement Function','in the P-GW: counts and enforces'],
+['PCC','Policy and Charging Control','PCRF, PCEF and their rules'],
+['CCR','Credit-Control Request','Gy/Ro message: initial, update, terminate'],
+['ICID','IMS Charging Identifier','one ID shared by all records of an IMS session'],
+['IBCF','Interconnection Border Control Function','IMS border to other IP networks'],
+['RAT','Radio Access Technology','e.g. LTE, NR or WLAN in records'],
+['WLAN','Wireless Local Area Network','Wi-Fi'],
+['CCS','Converged Charging System','5G charging: CHF, ABMF and RF'],
+['ABMF','Account Balance Management Function','holds prepaid and postpaid balances'],
+['SMSF','SMS Function','SMS over NAS in the 5G core'],
+['NEF','Network Exposure Function','exposes network APIs to third parties'],
+['B2B','Business to business',''],
+['CRM','Customer Relationship Management','customer and account system'],
+['IOT','Inter-Operator Tariff','wholesale price per roaming event'],
+['RAP','Returned Account Procedure','returns rejected TAP files or records'],
+['DCH','Data Clearing House','validates and forwards TAP between operators'],
+['FCH','Financial Clearing House','nets and settles amounts between operators'],
+['TDM','Time Division Multiplexing','classic E1/T1 voice trunks'],
+['IRSF','International Revenue Share Fraud','traffic pumped to premium numbers abroad'],
+['DNN','Data Network Name','5G equivalent of the APN'],
+['AI','Artificial Intelligence',''],
+['ML','Machine Learning',''],
+['RAN','Radio Access Network','the base stations and their controllers'],
+['RedCap','Reduced Capability','simpler, cheaper 5G devices such as wearables'],
+['NTN','Non-Terrestrial Networks','access via satellites or high-altitude platforms'],
+['GERAN','GSM EDGE Radio Access Network','3GPP name for the 2G radio network'],
+['ETSI','European Telecommunications Standards Institute','wrote GSM before 3GPP existed'],
+['TS','Technical Specification','a normative 3GPP document'],
+['UTRA','UMTS Terrestrial Radio Access','the 3G radio interface itself'],
+['E-UTRA','Evolved UTRA','the LTE radio interface itself'],
+['FDD','Frequency Division Duplex','separate uplink and downlink bands'],
+['EGPRS','Enhanced GPRS','3GPP name for EDGE packet data'],
+['R97','Release 97','GSM release that introduced GPRS'],
+['HSUPA','High Speed Uplink Packet Access','faster 3G uplink'],
+['SAE','System Architecture Evolution','work item that produced the EPC'],
+['GSMA','GSM Association','operator body that publishes profiles such as IR.92'],
+['5GS','5G System','NG-RAN plus 5GC'],
+['ng-eNB','next generation eNodeB','LTE base station connected to the 5GC'],
+['IMT-2000','International Mobile Telecommunications 2000','the ITU family for 3G'],
+['IMT-Advanced','IMT-Advanced','the ITU family for 4G'],
+['IMT-2020','International Mobile Telecommunications 2020','the ITU family for 5G'],
+['ITU','International Telecommunication Union','UN agency that defines each IMT generation'],
+['IMT-2030','International Mobile Telecommunications 2030','the ITU framework for 6G'],
+['ISAC','Integrated Sensing and Communication','the radio also senses objects and motion'],
+['FR3','Frequency Range 3','the 7\u201324 GHz range considered for 6G'],
+];
+function esc(x){return x.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');}
+GLOSS.forEach(g=>{g.re=new RegExp((g[3]?'(?<![A-Za-z0-9])':'(?<![A-Za-z0-9-])')+esc(g[0])+'s?(?![A-Za-z0-9-])');});
+function stepText(s){
+  const parts=[s.title,s.intro,s.era,...(s.bullets||[]),...(s.nums||[]).flat(),s.voice||'',s.records||'',s.svgText||''];
+  (s.lanes||[]).forEach(l=>parts.push(l[2]));
+  if(s.bus)parts.push(s.bus.label);
+  Object.values(s.nodes||{}).forEach(n=>parts.push(n[2],n[3]));
+  (s.links||[]).forEach(l=>parts.push(l[2]||''));
+  (s.flows||[]).forEach(f=>parts.push(f.label));
+  (s.spec||[]).forEach(r=>parts.push(...r));(s.map||[]).forEach(r=>parts.push(...r));if(s.map)parts.push('ITU');(s.specs||[]).forEach(n=>parts.push('TS '+n));
+  return parts.join(' \n ');
+}
+(function(){const seen=new Set(),seenR=new Set(),seenB=new Set();STEPS.forEach(s=>{const t=stepText(s);s.gloss=GLOSS.filter(g=>!seen.has(g[0])&&g.re.test(t));s.gloss.forEach(g=>seen.add(g[0]));
+  if(s.bill){const tb=stepText(s.bill);s.bill.gloss=GLOSS.filter(g=>!seen.has(g[0])&&!seenB.has(g[0])&&g.re.test(tb));s.bill.gloss.forEach(g=>seenB.add(g[0]));}
+  if(s.roam){const tr=stepText(s.roam);s.roam.gloss=GLOSS.filter(g=>!seen.has(g[0])&&!seenR.has(g[0])&&g.re.test(tr));s.roam.gloss.forEach(g=>seenR.add(g[0]));}});})();
+function renderGloss(s){
+  const box=document.getElementById('gloss');
+  const items=s.gloss.map(g=>`<dt>${g[0]}</dt><dd>${g[1]}${g[2]?`<span>, ${g[2]}</span>`:''}</dd>`).join('');
+  document.getElementById('glossn').textContent=s.gloss.length;
+  box.innerHTML=`<button class="close" aria-label="Close acronyms">×</button><h3>New acronyms</h3><p class="sub">Only terms appearing for the first time on this page.</p>`+
+    (items?`<dl>${items}</dl>`:`<p class="empty">Nothing new here: every acronym on this page was explained on an earlier one.</p>`);
+  box.querySelector('.close').addEventListener('click',()=>setGloss(false));
+}
+function setGloss(open){
+  document.getElementById('gloss').hidden=!open;
+  document.getElementById('glossbtn').setAttribute('aria-expanded',String(open));
+}
+
+const NS='http://www.w3.org/2000/svg';
+const svg=document.getElementById('stage');
+const panel=document.getElementById('panel');
+const chips=document.getElementById('chips');
+const progress=document.getElementById('progress');
+const hidden=new Set();
+let cur=0, autoTimer=null, paused=false, view='net';
+const curView=s=>view==='roam'&&s.roam?s.roam:view==='bill'&&s.bill?s.bill:s;
+const VID=()=>{const s=STEPS[cur],v=curView(s);return (v===s?'n':v===s.roam?'r':'b')+cur+':';};
+const AUTO_MS=16000;
+
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function pos(s,p){return typeof p==='string'?[s.nodes[p][0],s.nodes[p][1]]:p;}
+function dist(a,b){return Math.hypot(b[0]-a[0],b[1]-a[1]);}
+
+STEPS.forEach((s,i)=>{
+  const b=document.createElement('button');b.className='chip';b.textContent=s.key;const sys={'2G':'GSM · BSS/GERAN','2.5G':'GPRS/EDGE · GERAN','3G':'UMTS · UTRAN','4G':'EPS · E-UTRAN + EPC','5G':'5GS · NG-RAN + 5GC'}[s.key];if(sys)b.title=sys;
+  b.addEventListener('click',()=>{stopAuto();go(i);});chips.appendChild(b);
+});
+
+function drawArch(s){
+  curArch=s;
+  const lanes=el('g',{},svg);
+  s.lanes.forEach(([x,w,label],i)=>{
+    const g=el('g',{class:'fade',style:`--d:${i*0.05}s`},lanes);
+    el('rect',{class:'lane',x,y:14,width:w,height:432,rx:14},g);
+    el('text',{class:'lanelabel',x:x+14,y:436},g).textContent=label;
+  });
+  if(s.bus){
+    const g=el('g',{class:'fade',style:'--d:.15s'},svg);
+    el('line',{class:'bus',x1:s.bus.x1,y1:s.bus.y,x2:s.bus.x2,y2:s.bus.y},g);
+    el('text',{class:'buslabel',x:s.bus.x1,y:s.bus.y+22},g).textContent=s.bus.label;
+  }
+  const lg=el('g',{},svg);
+  s.links.forEach(([a,b,label,style],i)=>{
+    const p1=pos(s,a),p2=pos(s,b);
+    const g=el('g',{class:'fade',style:`--d:${0.25+i*0.04}s`},lg);
+    el('line',{class:'link '+(style||''),x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1]},g);
+    if(label){
+      const mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2,dx=Math.abs(p2[0]-p1[0]),dy=Math.abs(p2[1]-p1[1]);
+      const t=dy<dx*0.35?el('text',{class:'linklabel',x:mx,y:my-9,'text-anchor':'middle'},g):el('text',{class:'linklabel',x:mx+8,y:my+4,'text-anchor':'start'},g);
+      t.textContent=label;t.setAttribute('data-l',JSON.stringify([p1,p2,typeof a==='string'?a:null,typeof b==='string'?b:null]));
+    }
+  });
+  const fg=el('g',{},svg);
+  s.flows.forEach((f,i)=>{
+    const id=VID()+i;
+    const pts=f.path.map(p=>pos(s,p));
+    let len=0;for(let k=1;k<pts.length;k++)len+=dist(pts[k-1],pts[k]);
+    const off=f.kind==='signal'?-7:f.kind==='record'?0:(f.kind==='packet'&&s.flows.some(o=>o.kind==='signal'||o.kind==='circuit')?5:0);
+    const d='M'+pts.map(p=>p[0]+','+(p[1]+off)).join(' L');
+    const g=el('g',{class:'flow fade'+(hidden.has(id)?' off':''),'data-id':id,style:`--d:${0.9+i*0.3}s`},fg);
+    if(f.kind==='circuit'){
+      el('path',{class:'f-circuit-bg',d},g);el('path',{class:'f-circuit',d},g);
+    } else if(f.kind==='tunnel'){
+      el('path',{class:'f-tunnel',d},g);
+      el('path',{class:'f-tunnel-edge',d:'M'+pts.map(p=>p[0]+','+(p[1]-11)).join(' L')},g);
+      el('path',{class:'f-tunnel-edge',d:'M'+pts.map(p=>p[0]+','+(p[1]+11)).join(' L')},g);
+    } else {
+      const sig=f.kind==='signal', rec=f.kind==='record';
+      if(sig)el('path',{class:'f-sigpath',d},g);
+      if(rec)el('path',{class:'f-recpath',d},g);
+      const speed=sig?85:rec?60:150, dur=len/speed, n=Math.max(rec?2:sig?2:3,Math.round(len/(sig?160:rec?140:85)));
+      for(let k=0;k<n;k++){
+        const c=rec?el('rect',{x:-5,y:-6,width:10,height:12,rx:1.5,class:'recpkt'},g):el('circle',{r:sig?3.6:5,class:sig?'sigpkt':'pkt'},g);
+        el('animateMotion',{dur:dur.toFixed(2)+'s',begin:(-dur*k/n).toFixed(2)+'s',repeatCount:'indefinite',path:d},c);
+      }
+    }
+  });
+  const ng=el('g',{},svg);
+  Object.entries(s.nodes).forEach(([id,n],i)=>{
+    const [x,y,name,sub,type,w=106]=n, h=50;
+    const outer=el('g',{transform:`translate(${x},${y})`,'data-node':id},ng);
+    const g=el('g',{class:'node enter n-'+type,style:`--d:${0.1+i*0.06}s`},outer);
+    el('rect',{x:-w/2,y:-h/2,width:w,height:h,rx:10,'data-w':w},g);
+    el('text',{class:'nm',y:-3},g).textContent=name;
+    el('text',{class:'sb',y:14},g).textContent=sub;
+  });
+}
+
+function fitArch(){
+  const half={};
+  svg.querySelectorAll('g[data-node]').forEach(o=>{
+    const r=o.querySelector('rect'),w0=+r.getAttribute('data-w'),tx=[...o.querySelectorAll('text')];
+    tx.forEach(t=>t.style.fontSize='');
+    let need=Math.max(...tx.map(t=>t.getComputedTextLength()))+18, w=w0;
+    if(need>w0)w=Math.min(need,w0+28);
+    if(need>w){const k=(w-18)/(need-18);tx.forEach(t=>{const fs=parseFloat(getComputedStyle(t).fontSize);t.style.fontSize=(fs*k).toFixed(2)+'px';});}
+    r.setAttribute('width',w);r.setAttribute('x',-w/2);half[o.dataset.node]=[w/2,25];
+  });
+  const S=curArch;
+  svg.querySelectorAll('text[data-l]').forEach(t=>{
+    t.style.display='';t.style.fontSize='';
+    const [p1,p2,a,b]=JSON.parse(t.getAttribute('data-l'));
+    const inside=(x,y,id)=>{if(!id||!half[id])return false;const n=S.nodes[id];return Math.abs(x-n[0])<half[id][0]+4&&Math.abs(y-n[1])<half[id][1]+4;};
+    let vis=0;const L=Math.hypot(p2[0]-p1[0],p2[1]-p1[1]),N=80;
+    for(let i=0;i<N;i++){const x=p1[0]+(p2[0]-p1[0])*(i+.5)/N,y=p1[1]+(p2[1]-p1[1])*(i+.5)/N;if(!inside(x,y,a)&&!inside(x,y,b))vis+=L/N;}
+    const dx=Math.abs(p2[0]-p1[0]),dy=Math.abs(p2[1]-p1[1]);
+    const room=dy<dx*0.35?vis*(dx/L):vis*(dy/L)+60;
+    let tw=t.getComputedTextLength();
+    t.setAttribute('y',t.getAttribute('data-y')||t.getAttribute('y'));t.setAttribute('data-y',t.getAttribute('y'));
+    if(tw>room-6){t.style.fontSize='10.5px';tw=t.getComputedTextLength();}
+    if(tw>room-6&&dy<dx*0.35)t.setAttribute('y',(p1[1]+p2[1])/2-31);
+  });
+}
+let curArch=null;
+function drawOverview(){
+  const rows=[
+    [1991,'GSM (CSD)',0.0096,'9.6 kb/s','#c9662f'],
+    [2000,'GPRS',0.171,'171 kb/s','#b7871c'],
+    [2001,'UMTS R99',0.384,'384 kb/s','#2c8c8e'],
+    [2003,'EDGE',0.474,'474 kb/s','#b7871c'],
+    [2006,'HSDPA',14.4,'14.4 Mb/s','#2c8c8e'],
+    [2009,'LTE',150,'150 Mb/s','#2f62c6'],
+    [2010,'HSPA+ DC',42,'42 Mb/s','#2c8c8e'],
+    [2017,'LTE-A Pro',1000,'1 Gb/s','#2f62c6'],
+    [2019,'5G NR',20000,'20 Gb/s (target)','#1f9468']];
+  const x0=250,W=600,lo=-2.3,hi=4.4,sx=v=>x0+(Math.log10(v)-lo)/(hi-lo)*W;
+  [[0.01,'10 kb/s'],[0.1,'100 kb/s'],[1,'1 Mb/s'],[10,'10 Mb/s'],[100,'100 Mb/s'],[1000,'1 Gb/s'],[10000,'10 Gb/s']].forEach(([v,l])=>{
+    const x=sx(v);el('line',{class:'ov-grid',x1:x,y1:44,x2:x,y2:350},svg);el('text',{class:'ov-gridlbl',x,y:34},svg).textContent=l;
+  });
+  rows.forEach(([yr,name,v,lbl,col],i)=>{
+    const y=60+i*33, w=sx(v)-x0;
+    el('text',{class:'ov-year',x:40,y:y+13},svg).textContent=yr;
+    el('text',{class:'ov-name',x:90,y:y+13},svg).textContent=name;
+    el('rect',{class:'bar',x:x0,y,width:w,height:18,rx:4,fill:col,style:`--d:${0.1+i*0.12}s`},svg);
+    el('text',{class:'ov-val fade',x:x0+w+8,y:y+14,style:`--d:${0.6+i*0.12}s`},svg).textContent=lbl;
+  });
+  el('text',{class:'ov-name',x:40,y:398},svg).textContent='Voice';
+  const v=[['Circuit','1991','#c9662f'],['CS Fallback','2009','#2f62c6'],['VoLTE','2012','#6a4bd0'],['VoWiFi','2014','#b8407f'],['VoNR','2020','#1f9468']];
+  const vx=x=>150+x*170;
+  v.forEach(([n,yr,col],i)=>{
+    const g=el('g',{class:'ov-chip enter',style:`--d:${1.4+i*0.15}s`},el('g',{transform:`translate(${vx(i)},392)`},svg));
+    if(i<v.length-1)el('line',{x1:68,y1:0,x2:102,y2:0,stroke:'var(--line)','stroke-width':2},g);
+    el('rect',{x:0,y:-24,width:130,height:52,rx:10,stroke:col},g).setAttribute('x',-62);
+    el('text',{y:-2},g).textContent=n;
+    el('text',{class:'yr',y:16},g).textContent=yr;
+  });
+}
+
+function drawRoadmap(){
+  const X=y=>80+(y-2023)/(2031-2023)*860;
+  for(let y=2023;y<=2031;y++){el('line',{class:'ov-grid',x1:X(y),y1:40,x2:X(y),y2:330},svg);el('text',{class:'ov-gridlbl',x:X(y),y:30},svg).textContent=y;}
+  const lanes=[[40,112,'3GPP releases'],[160,76,'Milestones'],[244,82,'France: legacy switch-off'],[340,104,'Technologies in study']];
+  lanes.forEach(([y,h,l],i)=>{const g=el('g',{class:'fade',style:`--d:${i*.05}s`},svg);el('rect',{class:'lane',x:20,y,width:960,height:h,rx:12,opacity:.75},g);el('text',{class:'lanelabel',x:34,y:y+18},g).textContent=l;});
+  const bar=(a,b,y,label,col,d)=>{const g=el('g',{class:'rm-bar'},svg);el('rect',{class:'bar',x:X(a),y,width:X(b)-X(a),height:24,rx:6,fill:col,style:`--d:${d}s`},g);el('text',{class:'fade',x:X(a)+8,y:y+16,style:`--d:${d+.4}s`},g).textContent=label;};
+  bar(2023,2024.5,62,'Rel-18 5G-Advanced','#2f62c6',.2);
+  bar(2024.5,2026,98,'Rel-19','#1f9468',.35);
+  bar(2025.5,2027.25,62,'Rel-20 5G-A + 6G studies','#0d7ea3',.5);
+  bar(2027.2,2029,98,'Rel-21 first 6G specs','#6a4bd0',.65);
+  const pin=(y,label,d)=>{const g=el('g',{class:'enter',style:`--d:${d}s`},svg);el('path',{d:`M${X(y)},190 l7,9 l-7,9 l-7,-9z`,fill:'var(--accent)'},g);el('text',{class:'rm-lbl',x:X(y),y:226,'text-anchor':'middle'},g).textContent=label;};
+  pin(2029,'6G specs freeze',.9);pin(2029.6,'IMT-2030 submissions',1.0);pin(2030.4,'First 6G networks',1.1);
+  bar(2026,2026.95,266,'2G off','#c9662f',1.2);
+  bar(2028,2029.95,266,'3G off','#2c8c8e',1.35);
+  el('text',{class:'rm-lbl fade',x:X(2026),y:310,style:'--d:1.5s'},svg).textContent='Orange/Free Oct · SFR Nov · Bouygues Dec';
+  el('text',{class:'rm-lbl fade',x:X(2028),y:310,style:'--d:1.5s'},svg).textContent='Orange, SFR end 2028 · Bouygues end 2029';
+  const now=2026.76, ng=el('g',{class:'fade',style:'--d:1.6s'},svg);
+  el('line',{class:'rm-now',x1:X(now),y1:40,x2:X(now),y2:330},ng);
+  el('text',{class:'rm-lbl',x:X(now)+6,y:154,'font-weight':'600'},ng).textContent='Today';
+  const th=['AI-native RAN','ISAC sensing','NTN satellites','7-24 GHz (FR3)','Ambient IoT','RedCap devices'];
+  th.forEach((t,i)=>{const g=el('g',{class:'ov-chip enter',style:`--d:${1.7+i*.1}s`},el('g',{transform:`translate(${110+i*155},398)`},svg));
+    el('rect',{x:-70,y:-20,width:140,height:40,rx:20,stroke:'var(--accent)'},g);el('text',{y:5},g).textContent=t;});
+}
+
+function specHTML(s){
+  if(s.map)return `<div class="spec"><div class="spec-h">Common name vs 3GPP and ITU naming</div><div class="tblwrap"><table><thead><tr><th>Gen</th><th>System</th><th>Radio access</th><th>Core</th><th>ITU</th></tr></thead><tbody>${s.map.map(r=>`<tr>${r.map((c,i)=>i?`<td>${c}</td>`:`<th>${c}</th>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+  if(!s.spec)return '';
+  const links=(s.specs||[]).map(n=>`<a href="https://www.3gpp.org/DynaReport/${n.replace('.','')}.htm" target="_blank" rel="noopener">TS ${n}</a>`).join('');
+  return `<div class="spec"><div class="spec-h">3GPP terms</div><dl>${s.spec.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>${links?`<div class="specs"><span>Verify in:</span>${links}</div>`:''}</div>`;
+}
+function renderPanel(s){
+  const flows=(s.flows||[]).map((f,i)=>{
+    const id=VID()+i;
+    return `<button class="flowbtn" data-id="${id}" aria-pressed="${!hidden.has(id)}"><span class="sw ${f.kind}"></span><span>${f.label}</span></button>`;
+  }).join('');
+  panel.innerHTML=`
+    <p class="gen">${s.gen}</p>
+    <div class="era">${s.era}</div>
+    ${specHTML(s)}
+    <h2>${s.title}</h2>
+    <p>${s.intro}</p>
+    ${flows?`<div class="legend">${flows}</div><div class="hint">Click a flow to hide or show it in the diagram.</div>`:''}
+    <ul>${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+    <div class="nums">${s.nums.map(([b,l])=>`<div class="num"><b>${b}</b><span>${l}</span></div>`).join('')}</div>
+    ${(s.voice||s.records)?`<div class="meta">${s.voice?`<div><strong>Voice:</strong> ${s.voice}</div>`:''}${s.records?`<div><strong>${s.roam||!s.key?'Records and roaming':'Records'}:</strong> ${s.records}</div>`:''}</div>`:''}`;
+  panel.querySelectorAll('.flowbtn').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.id, on=hidden.has(id);
+    on?hidden.delete(id):hidden.add(id);
+    b.setAttribute('aria-pressed',String(on));
+    const g=svg.querySelector(`.flow[data-id="${id}"]`);if(g)g.classList.toggle('off',!on);
+  }));
+}
+
+function glossFor(t){return GLOSS.filter(g=>g.re.test(t));}
+function tagTips(){
+  svg.querySelectorAll('.node').forEach(n=>{const t=[...n.querySelectorAll('text')].map(x=>x.textContent).join(' ');if(glossFor(t).length)n.setAttribute('data-tip',t);});
+  svg.querySelectorAll('text').forEach(x=>{if(x.closest('.node'))return;const t=x.textContent;if(glossFor(t).length)x.setAttribute('data-tip',t);});
+  svg.querySelectorAll('.ov-chip').forEach(c=>{const t=[...c.querySelectorAll('text')].map(x=>x.textContent).join(' ');if(glossFor(t).length){c.setAttribute('data-tip',t);c.querySelectorAll('text').forEach(x=>x.removeAttribute('data-tip'));}});
+}
+(function(){
+  const tip=document.getElementById('tip'),stage=document.querySelector('.stage');let curEl=null;
+  function show(el,cx,cy){
+    if(el!==curEl){curEl=el;const m=glossFor(el.getAttribute('data-tip'));
+      tip.innerHTML=m.map(g=>`<div><b>${g[0]}</b>${g[1]}${g[2]?`<span>${g[2]}</span>`:''}</div>`).join('');}
+    const r=stage.getBoundingClientRect();tip.classList.add('show');
+    let x=cx-r.left+14,y=cy-r.top+16;const w=tip.offsetWidth,h=tip.offsetHeight;
+    if(x+w>r.width-8)x=Math.max(8,cx-r.left-w-14);if(y+h>r.height-8)y=Math.max(8,cy-r.top-h-14);
+    tip.style.left=x+'px';tip.style.top=y+'px';
+  }
+  function hide(){curEl=null;tip.classList.remove('show');}
+  svg.addEventListener('pointermove',e=>{const el=e.target.closest('[data-tip]');el?show(el,e.clientX,e.clientY):hide();});
+  svg.addEventListener('pointerleave',hide);
+  svg.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'){const el=e.target.closest('[data-tip]');el?show(el,e.clientX,e.clientY):hide();}});
+  window.__hideTip=hide;
+})();
+
+function go(i){
+  cur=(i+STEPS.length)%STEPS.length;
+  const s=STEPS[cur];
+  const v=curView(s);
+  document.documentElement.style.setProperty('--accent',s.accent);
+  svg.innerHTML='';
+  s.type==='overview'?drawOverview():s.type==='roadmap'?drawRoadmap():drawArch(v);
+  if(paused)svg.pauseAnimations();
+  if(curArch&&svg.querySelector('g[data-node]'))fitArch();
+  tagTips();if(window.__hideTip)__hideTip();
+  renderPanel(v);
+  renderGloss(v);
+  const vw=document.getElementById('views');vw.hidden=!(s.roam||s.bill);vw.querySelectorAll('button').forEach(b=>{const k=b.dataset.v;b.setAttribute('aria-pressed',String(curView(s)===(k==='net'?s:s[k])));});
+  chips.querySelectorAll('.chip').forEach((c,k)=>{if(k===cur)c.setAttribute('aria-current','step');else c.removeAttribute('aria-current');});
+  document.getElementById('count').textContent=`Step ${cur+1} of ${STEPS.length}`;
+  document.getElementById('prev').disabled=false;
+  document.getElementById('next').textContent=cur===STEPS.length-1?'Start over':'Next';
+  restartProgress();
+}
+
+function restartProgress(){
+  progress.classList.remove('run');void progress.offsetWidth;
+  if(autoTimer){progress.style.setProperty('--dur',AUTO_MS+'ms');progress.classList.add('run');}
+}
+function startAuto(){
+  autoTimer=setInterval(()=>{if(cur===STEPS.length-1){stopAuto();return;}go(cur+1);},AUTO_MS);
+  const b=document.getElementById('auto');b.setAttribute('aria-pressed','true');b.textContent='Stop autoplay';restartProgress();
+}
+function stopAuto(){
+  clearInterval(autoTimer);autoTimer=null;
+  const b=document.getElementById('auto');b.setAttribute('aria-pressed','false');b.textContent='Autoplay';restartProgress();
+}
+
+document.getElementById('prev').addEventListener('click',()=>{stopAuto();go(cur-1);});
+document.getElementById('next').addEventListener('click',()=>{if(autoTimer)restartProgress();go(cur+1);});
+document.getElementById('auto').addEventListener('click',()=>autoTimer?stopAuto():startAuto());
+document.getElementById('pause').addEventListener('click',e=>{
+  paused=!paused;document.body.classList.toggle('paused',paused);
+  paused?svg.pauseAnimations():svg.unpauseAnimations();
+  e.currentTarget.setAttribute('aria-pressed',String(paused));
+  e.currentTarget.textContent=paused?'Resume motion':'Pause motion';
+});
+document.querySelectorAll('#views button').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.v;go(cur);}));
+document.getElementById('glossbtn').addEventListener('click',()=>setGloss(document.getElementById('gloss').hidden));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')setGloss(false);
+  if(e.key==='ArrowRight'){stopAuto();go(cur+1);}
+  if(e.key==='ArrowLeft'){stopAuto();go(cur-1);}
+});
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){
+  paused=true;document.body.classList.add('paused');
+  const b=document.getElementById('pause');b.setAttribute('aria-pressed','true');b.textContent='Resume motion';
+}
+go(0);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(svg.querySelector('g[data-node]'))fitArch();});
+</script>
+</body>
+</html>
